@@ -17,4 +17,4 @@ async function iniciar() {
   }
 }
 
-iniciar();
+iniciar(); 
