@@ -18,3 +18,7 @@ async function iniciar() {
 }
 
 iniciar(); 
+
+
+const authRoutes = require('./routes/authRoutes');
+app.use('/api/auth', authRoutes);
