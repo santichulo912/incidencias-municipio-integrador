@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Municipio</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <img src="logo-municipalidad.png" alt="Logo municipalidad" class="logo-login">
+    <div class="login-container">
+        <h2>Sistema de incidencias</h2>
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="usuario">Usuario</label>
+                <input type="text" id="usuario" name="usuario" required>
+            </div>
+
+            <div class="form-group">
+                <label for="contrasenia">Contraseña</label>
+                <input type="password" id="contrasenia" name="contrasenia" required>
+            </div>
+
+            <div class="forgot-password">
+                <a href="#">¿Olvidaste tu contraseña?</a>
+            </div>
+            
+            <button type="submit"> Ingresar</button>
+            <p id="mensajeError" class="error"></p>
+        </form>
+    </div>
+    <script src="app.js"></script>
+    
+</body>
+</html>
