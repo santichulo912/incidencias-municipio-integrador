@@ -16,4 +16,7 @@ app.get('/api/health', (req, res) => {
 const authRoutes = require('./routes/authRoutes');
 app.use('/api/auth', authRoutes);
 
+const articuloRoutes = require('./routes/articuloRoutes');
+app.use('/api/articulos', articuloRoutes);
+
 module.exports = app;

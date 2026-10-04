@@ -17,7 +17,7 @@ Articulo.belongsTo(Area, { foreignKey: 'id_area' });
 
 // Una categoría tiene muchos artículos
 Categoria.hasMany(Articulo, { foreignKey: 'id_categoria' });
-Articulo.belongsTo(Categoria, { foreignKey: 'id_categoria' });
+Articulo.belongsTo(Categoria, { foreignKey: 'id_categoria', as: 'Categoria' });
 
 // Un artículo tiene muchas incidencias
 Articulo.hasMany(Incidencia, { foreignKey: 'id_articulo' });
