@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { check } = require('express-validator');
 
-// Traemos el middleware que armaste para proteger las rutas
+// Traemos el middleware 
 const validarToken = require('../middlewares/validarToken');
 
 // Funciones del controlador de categorías
