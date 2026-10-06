@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // Muestra el formulario y oculta el botón
+    // Muestra el formulario y oculta el botón de nueva incidencia
     const btnNuevaIncidencia = document.getElementById('btn-nueva-incidencia');
     const seccionFormulario = document.getElementById('seccion-crear-incidencia');
 
@@ -10,10 +10,11 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Carga los artículos apenas carga la pantalla
+    // Carga los artículos y categorías apenas carga la pantalla
     cargarArticulos();
+    cargarCategorias();
 
-    //Botón "Consultar Incidencias" trae la tabla real al hacer click
+    // Programamos el botón "Consultar Incidencias" para que traiga la tabla real al hacer clic
     const btnVerIncidencias = document.getElementById('btn-ver-incidencias');
     if (btnVerIncidencias) {
         btnVerIncidencias.addEventListener('click', () => {
@@ -25,10 +26,9 @@ document.addEventListener('DOMContentLoaded', () => {
 // Función encargada de traer los artículos de la BD
 async function cargarArticulos() {
     const token = localStorage.getItem('token');
-    if (!token) return; // Si no hay token, el archivo sesion.js ya se encarga de redirigir al login
+    if (!token) return; 
 
     try {
-        // Hacemos la petición a la ruta de artículos en el backend
         const response = await fetch('http://localhost:3000/api/articulos', {
             method: 'GET',
             headers: {
@@ -40,24 +40,56 @@ async function cargarArticulos() {
         const result = await response.json();
 
         if (response.ok) {
-            // Capturamos el select del HTML
             const selectArticulo = document.getElementById('select-articulo');
-            
-            selectArticulo.innerHTML = '<option value="">-- Seleccionar --</option>';
+            if (selectArticulo) {
+                selectArticulo.innerHTML = '<option value="">-- Seleccionar --</option>';
 
-            // Recorremos el arreglo de artículos de PostgreSQL
-            result.data.forEach(articulo => {
-                const option = document.createElement('option');
-                option.value = articulo.id_articulo; 
-                option.textContent = articulo.descripcion; 
-                selectArticulo.appendChild(option);
-            });
+                result.data.forEach(articulo => {
+                    const option = document.createElement('option');
+                    option.value = articulo.id_articulo; 
+                    option.textContent = articulo.descripcion; 
+                    selectArticulo.appendChild(option);
+                });
+            }
         } else {
             console.error("Error del servidor al cargar artículos:", result.mensaje);
         }
-
     } catch (error) {
         console.error("Error de red al cargar artículos:", error);
+    }
+}
+
+// Función para la carga de categorías
+async function cargarCategorias() {
+    const token = localStorage.getItem('token');
+    if (!token) return;
+
+    try {
+        const response = await fetch('http://localhost:3000/api/categorias', {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+            const selectCategoria = document.getElementById('select-categoria');
+            if (selectCategoria) {
+                selectCategoria.innerHTML = '<option value="">-- Seleccionar --</option>';
+
+                result.data.forEach(categoria => {
+                    const option = document.createElement('option');
+                    option.value = categoria.id_categoria; 
+                    option.textContent = categoria.descripcion; 
+                    selectCategoria.appendChild(option);
+                });
+            }
+        }
+    } catch (error) {
+        console.error("Error al cargar categorías:", error);
     }
 }
 
@@ -67,6 +99,7 @@ async function cargarIncidencias() {
     if (!token) return;
 
     const tbody = document.getElementById('tabla-incidencias');
+    if (!tbody) return;
 
     try {
         const response = await fetch('http://localhost:3000/api/incidencias', {
@@ -85,13 +118,11 @@ async function cargarIncidencias() {
             result.data.forEach(incidencia => {
                 const fila = document.createElement('tr');
                 
-                // Formateamos la fecha usando la columna "creado"
                 const fechaFormat = new Date(incidencia.creado).toLocaleDateString('es-AR');
                 
                 let estadoHtml = '';
                 let accionesHtml = '';
 
-                // Validamos el id_estado (1 es Pendiente) 
                 if (incidencia.id_estado === 1) {
                     estadoHtml = `<strong style="color: orange;">Pendiente</strong>`;
                     accionesHtml = `<button type="button" class="btn-cancelar" onclick="cancelarIncidencia(${incidencia.id_incidencia})">Cancelar Incidencia</button>`;
@@ -139,7 +170,7 @@ async function cancelarIncidencia(idIncidencia) {
 
         if (response.ok) {
             alert('Incidencia cancelada con éxito.');
-            cargarIncidencias(); // Refresca la tabla automáticamente
+            cargarIncidencias(); 
         } else {
             alert('No se pudo cancelar: ' + result.mensaje);
         }
