@@ -56,3 +56,81 @@ async function cargarArticulos() {
         console.error("Error de red al cargar artículos:", error);
     }
 }
+
+document.addEventListener('DOMContentLoaded', () => {
+    const btnNuevaIncidencia = document.getElementById('btn-nueva-incidencia');
+    const seccionFormulario = document.getElementById('seccion-crear-incidencia');
+
+    if (btnNuevaIncidencia && seccionFormulario) {
+        btnNuevaIncidencia.addEventListener('click', () => {
+            seccionFormulario.style.display = 'block';
+            btnNuevaIncidencia.style.display = 'none';
+        });
+    }
+    // Ejecutamos ambas consultas a la base de datos al cargar la pantalla
+    cargarArticulos();
+    cargarCategorias();
+});
+
+async function cargarArticulos() {
+    const token = localStorage.getItem('token');
+    if (!token) return;
+
+    try {
+        const response = await fetch('/api/articulos', {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+            const selectArticulo = document.getElementById('select-articulo');
+            selectArticulo.innerHTML = '<option value="">-- Seleccionar --</option>';
+
+            result.data.forEach(articulo => {
+                const option = document.createElement('option');
+                option.value = articulo.id_articulo; 
+                option.textContent = articulo.nombre; 
+                selectArticulo.appendChild(option);
+            });
+        }
+    } catch (error) {
+        console.error("Error al cargar artículos:", error);
+    }
+}
+
+// Función para la carga de categorías
+async function cargarCategorias() {
+    const token = localStorage.getItem('token');
+    if (!token) return;
+
+    try {
+        const response = await fetch('/api/categorias', {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+            const selectCategoria = document.getElementById('select-categoria');
+            selectCategoria.innerHTML = '<option value="">-- Seleccionar --</option>';
+
+            result.data.forEach(categoria => {
+                const option = document.createElement('option');
+                option.value = categoria.id_categoria; 
+                option.textContent = categoria.descripcion; 
+                selectCategoria.appendChild(option);
+            });
+        }
+    } catch (error) {
+        console.error("Error al cargar categorías:", error);
+    }
+}
