@@ -10,9 +10,14 @@ document.addEventListener('DOMContentLoaded', () => {
     if (usuarioInfo) {
         const usuario = JSON.parse(usuarioInfo);
         const spanNombre = document.getElementById('nombre-usuario');
-
+        //Dependiendo el rol lo redirige a su respectiva pantalla
         if (spanNombre) {
-            spanNombre.textContent = `Usuario: ${usuario.nombres} (${usuario.rol === 1 ? 'Director' : 'Empleado'})`;
+            let nombreRol = '';
+            if (usuario.rol === 1) nombreRol = 'Director Sistemas';
+            else if (usuario.rol === 2) nombreRol = 'Técnico Sistemas';
+            else if (usuario.rol === 3) nombreRol = 'Municipal';
+
+            spanNombre.textContent = `Usuario: \({usuario.nombres} (\){nombreRol})`;
         }
     }
 
