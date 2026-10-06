@@ -27,17 +27,18 @@ loginForm.addEventListener('submit', async (event) => {
             throw new Error(data.mensaje || 'Credenciales inválidas');
         }
 
-        // 5. Exito: Guardamos el token y damos feedback visual
+        // 5. Exito: Guardamos el token y datos
         console.log("Token recibido:", data.token);
         localStorage.setItem('token', data.token); 
-        
-        // Guardamos también los datos del usuario 
         localStorage.setItem('usuario', JSON.stringify(data.usuario));
         
-        mensajeError.style.color = "#4CAF50";
-        mensajeError.textContent = "¡Ingreso exitoso! Redirigiendo...";
+        // --- ANIMACIÓN DE CARGA ---
+        // Escondemos el botón y el texto de error, y mostramos el spinner
+        document.querySelector('button[type="submit"]').style.display = 'none';
+        mensajeError.textContent = ''; 
+        document.getElementById('spinner').style.display = 'block';
 
-        // 6. Redirección automática según el rol 
+        // 6. Redirección automática según el rol (1.5 segundos)
         setTimeout(() => {
             if (data.usuario.rol === 1) {
                 // Si es Director (rol 1), va a la gestión de categorías
@@ -46,12 +47,17 @@ loginForm.addEventListener('submit', async (event) => {
                 // Si es Empleado (cualquier otro rol), va a su portal
                 window.location.href = 'empleado.html';
             }
-        }, 1000);
+        }, 1500);
 
     } catch (error) {
         // 7. Error: Muestra el mensaje en la interfaz
         console.error(error);
         mensajeError.style.color = "#dc3545";
         mensajeError.textContent = error.message;
+        
+        // Si se equivocó de clave, ocultamos el spinner y le devolvemos el botón
+        document.querySelector('button[type="submit"]').style.display = 'block';
+        const spinnerInfo = document.getElementById('spinner');
+        if(spinnerInfo) spinnerInfo.style.display = 'none';
     }
 });
