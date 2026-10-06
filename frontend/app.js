@@ -47,7 +47,7 @@ loginForm.addEventListener('submit', async (event) => {
                 // Si es Empleado (cualquier otro rol), va a su portal
                 window.location.href = 'empleado.html';
             }
-        }, 1000);
+        }, 800);
 
     } catch (error) {
         // 7. Error: Muestra el mensaje en la interfaz
