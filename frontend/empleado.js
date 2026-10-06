@@ -48,7 +48,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Función encargada de traer los artículos de la BD
 async function cargarArticulos() {
+    // 1. Buscamos el elemento una sola vez
+    const selectArticulo = document.getElementById('select-articulo');
     const token = localStorage.getItem('token');
+    
     if (!token) return; 
 
     try {
@@ -63,7 +66,7 @@ async function cargarArticulos() {
         const result = await response.json();
 
         if (response.ok) {
-            const selectArticulo = document.getElementById('select-articulo');
+            // 2. Usamos directamente la variable que definimos arriba
             if (selectArticulo) {
                 selectArticulo.innerHTML = '<option value="">-- Seleccionar --</option>';
 
@@ -156,7 +159,7 @@ async function cargarIncidencias() {
 
                 fila.innerHTML = `
                     <td>#${incidencia.id_incidencia}</td>
-                    <td>Artículo #${incidencia.id_articulo}</td>
+                    <td>${incidencia.Articulo.descripcion}</td>
                     <td>${incidencia.descripcion_pedido}</td>
                     <td>${fechaFormat}</td>
                     <td>${estadoHtml}</td>
