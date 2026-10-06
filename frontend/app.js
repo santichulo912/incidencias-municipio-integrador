@@ -1,6 +1,7 @@
 // 1. Selecciona los elementos del DOM usando los IDs del HTML
 const loginForm = document.getElementById('loginForm');
 const mensajeError = document.getElementById('mensajeError');
+const inputUsuario = document.getElementById('usuario');
 const checkboxRecordar = document.getElementById('recordarUsuario')
 
 //Al cargar la página, revisamos si el usuario pidió ser recordado
