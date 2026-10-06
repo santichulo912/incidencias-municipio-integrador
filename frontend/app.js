@@ -40,9 +40,9 @@ loginForm.addEventListener('submit', async (event) => {
 
         // 5. Exito: Guardamos el token y datos
         console.log("Token recibido:", data.token);
-        localStorage.setItem('token', data.token); 
+        localStorage.setItem('token', data.token);
         localStorage.setItem('usuario', JSON.stringify(data.usuario));
-        
+
         //Lógica de Recordar Usuario
         if (checkboxRecordar.checked) {
             localStorage.setItem('usuario_recordado', usuario);
@@ -53,10 +53,10 @@ loginForm.addEventListener('submit', async (event) => {
         // --- ANIMACIÓN DE CARGA ---
         // Escondemos el botón y el texto de error, y mostramos el spinner
         document.querySelector('button[type="submit"]').style.display = 'none';
-        mensajeError.textContent = ''; 
+        mensajeError.textContent = '';
         document.getElementById('spinner').style.display = 'block';
 
-        // 6. Redirección automática según el rol (1.5 segundos)
+        // 6. Redirección automática según el rol
         setTimeout(() => {
             if (data.usuario.rol === 1) {
                 // Si es Director (rol 1), va a la gestión de categorías
@@ -72,10 +72,10 @@ loginForm.addEventListener('submit', async (event) => {
         console.error(error);
         mensajeError.style.color = "#dc3545";
         mensajeError.textContent = error.message;
-        
+
         // Si se equivocó de clave, ocultamos el spinner y le devolvemos el botón
         document.querySelector('button[type="submit"]').style.display = 'block';
         const spinnerInfo = document.getElementById('spinner');
-        if(spinnerInfo) spinnerInfo.style.display = 'none';
+        if (spinnerInfo) spinnerInfo.style.display = 'none';
     }
 });
