@@ -9,10 +9,33 @@ document.addEventListener('DOMContentLoaded', () => {
             btnNuevaIncidencia.style.display = 'none';
         });
     }
+// 2. Recuperamos los datos del usuario para mostrar en la barra superior
+    const usuarioGuardado = localStorage.getItem('usuario'); 
+    
+    if (usuarioGuardado) {
+        try {
+            const usuario = JSON.parse(usuarioGuardado);
+            const spanUsuario = document.getElementById('nombre-usuario');
+            
+            let nombreRol = "";
+            if (usuario.rol === 1) nombreRol = "Directora";
+            else if (usuario.rol === 2) nombreRol = "Empleado";
+            else if (usuario.rol === 3) nombreRol = "Técnico";
+            else nombreRol = "Usuario";
+
+            // Inyectamos el texto final en el HTML
+            if (spanUsuario) {
+                spanUsuario.textContent = `Usuario: ${usuario.nombres} ${usuario.apellidos} (${nombreRol})`;
+            }
+        } catch (e) {
+            console.error("Error al leer los datos del usuario:", e);
+        }
+    }
 
     // Carga los artículos y categorías apenas carga la pantalla
     cargarArticulos();
     cargarCategorias();
+    cargarIncidencias();
 
     // Programamos el botón "Consultar Incidencias" para que traiga la tabla real al hacer clic
     const btnVerIncidencias = document.getElementById('btn-ver-incidencias');
@@ -128,7 +151,7 @@ async function cargarIncidencias() {
                     accionesHtml = `<button type="button" class="btn-cancelar" onclick="cancelarIncidencia(${incidencia.id_incidencia})">Cancelar Incidencia</button>`;
                 } else {
                     estadoHtml = `<strong style="color: green;">Finalizada/Cancelada</strong>`;
-                    accionesHtml = `<span>Sin acciones</span>`;
+                    accionesHtml = ``; 
                 }
 
                 fila.innerHTML = `

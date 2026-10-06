@@ -25,4 +25,7 @@ app.use('/api/articulos', articuloRoutes);
 const categoriaRoutes = require('./routes/categoriaRoutes');
 app.use('/api/categorias', categoriaRoutes);
 
+const incidenciaRoutes = require('./routes/incidenciaRoutes');
+app.use('/api/incidencias', incidenciaRoutes);
+
 module.exports = app;
