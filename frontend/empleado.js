@@ -94,7 +94,7 @@ async function cargarArticulos() {
             result.data.forEach(articulo => {
                 const option = document.createElement('option');
                 option.value = articulo.id_articulo; 
-                option.textContent = articulo.nombre; 
+                option.textContent = articulo.descripcion; 
                 selectArticulo.appendChild(option);
             });
         }
