@@ -111,7 +111,7 @@ tr:hover {
 
 /* Formulario oculto para crear incidencia */
 #seccion-crear-incidencia {
-    display: none;
+    display: block;
     background-color: white;
     border-radius: 5px;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
