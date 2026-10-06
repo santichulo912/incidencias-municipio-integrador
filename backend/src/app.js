@@ -19,4 +19,7 @@ app.use('/api/auth', authRoutes);
 const articuloRoutes = require('./routes/articuloRoutes');
 app.use('/api/articulos', articuloRoutes);
 
+const categoriaRoutes = require('./routes/categoriaRoutes');
+app.use('/api/categorias', categoriaRoutes);
+
 module.exports = app;
