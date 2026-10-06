@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // Muestra el formulario y oculta el botón
+    // Muestra el formulario y oculta el botón de nueva incidencia
     const btnNuevaIncidencia = document.getElementById('btn-nueva-incidencia');
     const seccionFormulario = document.getElementById('seccion-crear-incidencia');
 
@@ -10,17 +10,26 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Carga los artículos apenas carga la pantalla
+    // Carga los artículos y categorías apenas carga la pantalla
     cargarArticulos();
+    cargarCategorias();
+
+    // Programamos el botón "Consultar Incidencias" para que traiga la tabla real al hacer clic
+    const btnVerIncidencias = document.getElementById('btn-ver-incidencias');
+    if (btnVerIncidencias) {
+        btnVerIncidencias.addEventListener('click', () => {
+            cargarIncidencias();
+        });
+    }
 });
+
 // Función encargada de traer los artículos de la BD
 async function cargarArticulos() {
     const token = localStorage.getItem('token');
-    if (!token) return; // Si no hay token, el archivo sesion.js ya se encarga de redirigir al login
+    if (!token) return; 
 
     try {
-        // Hacemos la petición a la ruta de artículos en el backend
-        const response = await fetch('/api/articulos', {
+        const response = await fetch('http://localhost:3000/api/articulos', {
             method: 'GET',
             headers: {
                 'Authorization': `Bearer ${token}`,
@@ -31,75 +40,22 @@ async function cargarArticulos() {
         const result = await response.json();
 
         if (response.ok) {
-            // Capturamos el select del HTML
             const selectArticulo = document.getElementById('select-articulo');
-            
-            // Limpiamos los datos de prueba "hardcodeados" del HTML, dejando solo la opción por defecto
-            selectArticulo.innerHTML = '<option value="">-- Seleccionar --</option>';
+            if (selectArticulo) {
+                selectArticulo.innerHTML = '<option value="">-- Seleccionar --</option>';
 
-            // Recorremos el arreglo de artículos que mandó PostgreSQL
-            result.data.forEach(articulo => {
-                // Fabricamos una nueva opción por cada artículo
-                const option = document.createElement('option');
-                
-                option.value = articulo.id_articulo; 
-                option.textContent = articulo.descripcion; 
-                
-                // Inyectamos la opción en el menú desplegable
-                selectArticulo.appendChild(option);
-            });
+                result.data.forEach(articulo => {
+                    const option = document.createElement('option');
+                    option.value = articulo.id_articulo; 
+                    option.textContent = articulo.descripcion; 
+                    selectArticulo.appendChild(option);
+                });
+            }
         } else {
             console.error("Error del servidor al cargar artículos:", result.mensaje);
         }
-
     } catch (error) {
         console.error("Error de red al cargar artículos:", error);
-    }
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-    const btnNuevaIncidencia = document.getElementById('btn-nueva-incidencia');
-    const seccionFormulario = document.getElementById('seccion-crear-incidencia');
-
-    if (btnNuevaIncidencia && seccionFormulario) {
-        btnNuevaIncidencia.addEventListener('click', () => {
-            seccionFormulario.style.display = 'block';
-            btnNuevaIncidencia.style.display = 'none';
-        });
-    }
-    // Ejecutamos ambas consultas a la base de datos al cargar la pantalla
-    cargarArticulos();
-    cargarCategorias();
-});
-
-async function cargarArticulos() {
-    const token = localStorage.getItem('token');
-    if (!token) return;
-
-    try {
-        const response = await fetch('/api/articulos', {
-            method: 'GET',
-            headers: {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json'
-            }
-        });
-
-        const result = await response.json();
-
-        if (response.ok) {
-            const selectArticulo = document.getElementById('select-articulo');
-            selectArticulo.innerHTML = '<option value="">-- Seleccionar --</option>';
-
-            result.data.forEach(articulo => {
-                const option = document.createElement('option');
-                option.value = articulo.id_articulo; 
-                option.textContent = articulo.descripcion; 
-                selectArticulo.appendChild(option);
-            });
-        }
-    } catch (error) {
-        console.error("Error al cargar artículos:", error);
     }
 }
 
@@ -109,7 +65,7 @@ async function cargarCategorias() {
     if (!token) return;
 
     try {
-        const response = await fetch('/api/categorias', {
+        const response = await fetch('http://localhost:3000/api/categorias', {
             method: 'GET',
             headers: {
                 'Authorization': `Bearer ${token}`,
@@ -121,16 +77,105 @@ async function cargarCategorias() {
 
         if (response.ok) {
             const selectCategoria = document.getElementById('select-categoria');
-            selectCategoria.innerHTML = '<option value="">-- Seleccionar --</option>';
+            if (selectCategoria) {
+                selectCategoria.innerHTML = '<option value="">-- Seleccionar --</option>';
 
-            result.data.forEach(categoria => {
-                const option = document.createElement('option');
-                option.value = categoria.id_categoria; 
-                option.textContent = categoria.descripcion; 
-                selectCategoria.appendChild(option);
-            });
+                result.data.forEach(categoria => {
+                    const option = document.createElement('option');
+                    option.value = categoria.id_categoria; 
+                    option.textContent = categoria.descripcion; 
+                    selectCategoria.appendChild(option);
+                });
+            }
         }
     } catch (error) {
         console.error("Error al cargar categorías:", error);
+    }
+}
+
+// Función encargada de traer las incidencias del usuario logueado
+async function cargarIncidencias() {
+    const token = localStorage.getItem('token');
+    if (!token) return;
+
+    const tbody = document.getElementById('tabla-incidencias');
+    if (!tbody) return;
+
+    try {
+        const response = await fetch('http://localhost:3000/api/incidencias', {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+            tbody.innerHTML = ''; 
+
+            result.data.forEach(incidencia => {
+                const fila = document.createElement('tr');
+                
+                const fechaFormat = new Date(incidencia.creado).toLocaleDateString('es-AR');
+                
+                let estadoHtml = '';
+                let accionesHtml = '';
+
+                if (incidencia.id_estado === 1) {
+                    estadoHtml = `<strong style="color: orange;">Pendiente</strong>`;
+                    accionesHtml = `<button type="button" class="btn-cancelar" onclick="cancelarIncidencia(${incidencia.id_incidencia})">Cancelar Incidencia</button>`;
+                } else {
+                    estadoHtml = `<strong style="color: green;">Finalizada/Cancelada</strong>`;
+                    accionesHtml = `<span>Sin acciones</span>`;
+                }
+
+                fila.innerHTML = `
+                    <td>#${incidencia.id_incidencia}</td>
+                    <td>Artículo #${incidencia.id_articulo}</td>
+                    <td>${incidencia.descripcion_pedido}</td>
+                    <td>${fechaFormat}</td>
+                    <td>${estadoHtml}</td>
+                    <td>${accionesHtml}</td>
+                `;
+                tbody.appendChild(fila);
+            });
+        } else {
+            console.error("Error al cargar incidencias:", result.mensaje);
+        }
+    } catch (error) {
+        console.error("Error de red al cargar incidencias:", error);
+    }
+}
+
+// Función para cambiar el estado de la incidencia en la BD
+async function cancelarIncidencia(idIncidencia) {
+    if (!confirm(`¿Estás seguro de que querés cancelar la incidencia #${idIncidencia}?`)) {
+        return; 
+    }
+
+    const token = localStorage.getItem('token');
+    
+    try {
+        const response = await fetch(`http://localhost:3000/api/incidencias/${idIncidencia}/cancelar`, {
+            method: 'PUT', 
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+            alert('Incidencia cancelada con éxito.');
+            cargarIncidencias(); 
+        } else {
+            alert('No se pudo cancelar: ' + result.mensaje);
+        }
+    } catch (error) {
+        console.error("Error al cancelar la incidencia:", error);
+        alert('Error de conexión con el servidor.');
     }
 }
