@@ -2,6 +2,15 @@
 const loginForm = document.getElementById('loginForm');
 const mensajeError = document.getElementById('mensajeError');
 
+//Al cargar la página, revisamos si el usuario pidió ser recordado
+document.addEventListener('DOMContentLoaded', () => {
+    const usuarioRecordado = localStorage.getItem('usuario_recordado');
+    if (usuarioRecordado) {
+        inputUsuario.value = usuarioRecordado;
+        checkboxRecordar.checked = true; // Dejamos el tilde puesto
+    }
+});
+
 // 2. Registra el evento submit
 loginForm.addEventListener('submit', async (event) => {
     event.preventDefault(); // Evita que la página se recargue
@@ -32,6 +41,13 @@ loginForm.addEventListener('submit', async (event) => {
         localStorage.setItem('token', data.token); 
         localStorage.setItem('usuario', JSON.stringify(data.usuario));
         
+        //Lógica de Recordar Usuario
+        if (checkboxRecordar.checked) {
+            localStorage.setItem('usuario_recordado', usuario);
+        } else {
+            localStorage.removeItem('usuario_recordado');
+        }
+
         // --- ANIMACIÓN DE CARGA ---
         // Escondemos el botón y el texto de error, y mostramos el spinner
         document.querySelector('button[type="submit"]').style.display = 'none';
