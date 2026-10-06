@@ -3,7 +3,8 @@ const router = express.Router();
 const { check } = require('express-validator');
 
 // Traemos el middleware 
-const validarToken = require('../middlewares/validarToken');
+const { validarJWT } = require('../middlewares/validarToken');
+const { verificarDirector } = require('../middlewares/validarRoles');
 
 // Funciones del controlador de categorías
 const {
@@ -16,24 +17,26 @@ const {
 
 
 // BROWSE: Trae todas las categorías (protegido por token)
-router.get('/', validarToken, obtenerCategorias);
+router.get('/', validarJWT, obtenerCategorias);
 
 // READ: Trae una sola categoría por su ID
-router.get('/:id', validarToken, obtenerCategoriasPorId);
+router.get('/:id', validarJWT, obtenerCategoriasPorId);
 
 // ADD: Crea una categoría nueva
 router.post('/', [
-    validarToken, // Primero chequeamos que el usuario esté logueado
+    validarJWT, // Primero chequeamos que el usuario esté logueado
+    verificarDirector,
     check('descripcion', 'La descripción es obligatoria').not().isEmpty() // Después validamos los datos
 ], crearCategoria);
 
 // EDIT: Modifica una categoría existente
 router.put('/:id', [
-    validarToken,
+    validarJWT,
+    verificarDirector,
     check('descripcion', 'La descripción no puede quedar vacía').not().isEmpty()
 ], actualizarCategoria);
 
 // DELETE: Borrado lógico (cambia el estado activo a 0)
-router.delete('/:id', validarToken, eliminarCategoria);
+router.delete('/:id', validarJWT, verificarDirector, eliminarCategoria);
 
 module.exports = router;
