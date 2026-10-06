@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Categorías - Sistema de Incidencias</title>
+    <!-- Acá podés linkear tu style.css o Bootstrap si usan -->
+    <link rel="stylesheet" href="style.css"> 
+</head>
+<body>
+    <div class="contenedor">
+        <h2>Gestión de Categorías</h2>
+        
+        <!-- Tabla donde inyectaremos los datos -->
+        <table border="1" id="tabla-categorias">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Descripción</th>
+                </tr>
+            </thead>
+            <tbody id="cuerpo-tabla">
+                <!-- JavaScript rellenará esto automáticamente -->
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Conectamos el script que va a ir a buscar los datos -->
+    <script src="categorias.js"></script>
+</body>
+</html>
