@@ -58,11 +58,11 @@ loginForm.addEventListener('submit', async (event) => {
 
         // 6. Redirección automática según el rol
         setTimeout(() => {
-            if (data.usuario.rol === 1) {
+            if (data.usuario.rol == 1) {
                 window.location.href = 'categorias.html';
-            } else if (data.usuario.rol === 2) {
+            } else if (data.usuario.rol == 2) {
                 window.location.href = 'empleado_sistemas.html';
-            } else if (data.usuario.rol === 3) {
+            } else if (data.usuario.rol == 3) {
                 window.location.href = 'empleado.html';
             }
         }, 800);

@@ -19,8 +19,8 @@ document.addEventListener('DOMContentLoaded', () => {
             
             let nombreRol = "";
             if (usuario.rol === 1) nombreRol = "Directora";
-            else if (usuario.rol === 2) nombreRol = "Empleado";
-            else if (usuario.rol === 3) nombreRol = "Técnico";
+            else if (usuario.rol === 2) nombreRol = "Técnico";
+            else if (usuario.rol === 3) nombreRol = "Empleado";
             else nombreRol = "Usuario";
 
             // Inyectamos el texto final en el HTML

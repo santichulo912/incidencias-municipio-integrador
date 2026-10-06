@@ -17,7 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
             else if (usuario.rol === 2) nombreRol = 'Técnico Sistemas';
             else if (usuario.rol === 3) nombreRol = 'Municipal';
 
-            spanNombre.textContent = `Usuario: \({usuario.nombres} (\){nombreRol})`;
+            spanNombre.textContent = `Usuario: ${usuario.nombres} (${nombreRol})`;
         }
     }
 
