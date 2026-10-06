@@ -8,7 +8,7 @@ const validarToken = require('../middlewares/validarToken');
 // Funciones del controlador de categorías
 const {
     obtenerCategorias,
-    obtenerCategoriaPorId,
+    obtenerCategoriasPorId,
     crearCategoria,
     actualizarCategoria,
     eliminarCategoria
@@ -19,7 +19,7 @@ const {
 router.get('/', validarToken, obtenerCategorias);
 
 // READ: Trae una sola categoría por su ID
-router.get('/:id', validarToken, obtenerCategoriaPorId);
+router.get('/:id', validarToken, obtenerCategoriasPorId);
 
 // ADD: Crea una categoría nueva
 router.post('/', [
