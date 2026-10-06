@@ -12,7 +12,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Carga los artículos apenas carga la pantalla
     cargarArticulos();
+
+    //Botón "Consultar Incidencias" trae la tabla real al hacer click
+    const btnVerIncidencias = document.getElementById('btn-ver-incidencias');
+    if (btnVerIncidencias) {
+        btnVerIncidencias.addEventListener('click', () => {
+            cargarIncidencias();
+        });
+    }
 });
+
 // Función encargada de traer los artículos de la BD
 async function cargarArticulos() {
     const token = localStorage.getItem('token');
@@ -20,7 +29,7 @@ async function cargarArticulos() {
 
     try {
         // Hacemos la petición a la ruta de artículos en el backend
-        const response = await fetch('/api/articulos', {
+        const response = await fetch('http://localhost:3000/api/articulos', {
             method: 'GET',
             headers: {
                 'Authorization': `Bearer ${token}`,
@@ -34,18 +43,13 @@ async function cargarArticulos() {
             // Capturamos el select del HTML
             const selectArticulo = document.getElementById('select-articulo');
             
-            // Limpiamos los datos de prueba "hardcodeados" del HTML, dejando solo la opción por defecto
             selectArticulo.innerHTML = '<option value="">-- Seleccionar --</option>';
 
-            // Recorremos el arreglo de artículos que mandó PostgreSQL
+            // Recorremos el arreglo de artículos de PostgreSQL
             result.data.forEach(articulo => {
-                // Fabricamos una nueva opción por cada artículo
                 const option = document.createElement('option');
-                
                 option.value = articulo.id_articulo; 
                 option.textContent = articulo.descripcion; 
-                
-                // Inyectamos la opción en el menú desplegable
                 selectArticulo.appendChild(option);
             });
         } else {
@@ -54,5 +58,93 @@ async function cargarArticulos() {
 
     } catch (error) {
         console.error("Error de red al cargar artículos:", error);
+    }
+}
+
+// Función encargada de traer las incidencias del usuario logueado
+async function cargarIncidencias() {
+    const token = localStorage.getItem('token');
+    if (!token) return;
+
+    const tbody = document.getElementById('tabla-incidencias');
+
+    try {
+        const response = await fetch('http://localhost:3000/api/incidencias', {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+            tbody.innerHTML = ''; 
+
+            result.data.forEach(incidencia => {
+                const fila = document.createElement('tr');
+                
+                // Formateamos la fecha usando la columna "creado"
+                const fechaFormat = new Date(incidencia.creado).toLocaleDateString('es-AR');
+                
+                let estadoHtml = '';
+                let accionesHtml = '';
+
+                // Validamos el id_estado (1 es Pendiente) 
+                if (incidencia.id_estado === 1) {
+                    estadoHtml = `<strong style="color: orange;">Pendiente</strong>`;
+                    accionesHtml = `<button type="button" class="btn-cancelar" onclick="cancelarIncidencia(${incidencia.id_incidencia})">Cancelar Incidencia</button>`;
+                } else {
+                    estadoHtml = `<strong style="color: green;">Finalizada/Cancelada</strong>`;
+                    accionesHtml = `<span>Sin acciones</span>`;
+                }
+
+                fila.innerHTML = `
+                    <td>#${incidencia.id_incidencia}</td>
+                    <td>Artículo #${incidencia.id_articulo}</td>
+                    <td>${incidencia.descripcion_pedido}</td>
+                    <td>${fechaFormat}</td>
+                    <td>${estadoHtml}</td>
+                    <td>${accionesHtml}</td>
+                `;
+                tbody.appendChild(fila);
+            });
+        } else {
+            console.error("Error al cargar incidencias:", result.mensaje);
+        }
+    } catch (error) {
+        console.error("Error de red al cargar incidencias:", error);
+    }
+}
+
+// Función para cambiar el estado de la incidencia en la BD
+async function cancelarIncidencia(idIncidencia) {
+    if (!confirm(`¿Estás seguro de que querés cancelar la incidencia #${idIncidencia}?`)) {
+        return; 
+    }
+
+    const token = localStorage.getItem('token');
+    
+    try {
+        const response = await fetch(`http://localhost:3000/api/incidencias/${idIncidencia}/cancelar`, {
+            method: 'PUT', 
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+            alert('Incidencia cancelada con éxito.');
+            cargarIncidencias(); // Refresca la tabla automáticamente
+        } else {
+            alert('No se pudo cancelar: ' + result.mensaje);
+        }
+    } catch (error) {
+        console.error("Error al cancelar la incidencia:", error);
+        alert('Error de conexión con el servidor.');
     }
 }
