@@ -1,12 +1,15 @@
 const express = require('express');
 const morgan = require('morgan');
 const cors = require('cors');
+const path = require('path'); 
 
 const app = express();
 
 app.use(cors());
 app.use(express.json());
 app.use(morgan('dev'));
+
+app.use(express.static(path.join(__dirname, '../../frontend')));
 
 // Ruta de prueba
 app.get('/api/health', (req, res) => {
