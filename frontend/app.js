@@ -31,14 +31,25 @@ loginForm.addEventListener('submit', async (event) => {
         console.log("Token recibido:", data.token);
         localStorage.setItem('token', data.token); 
         
+        // Guardamos también los datos del usuario 
+        localStorage.setItem('usuario', JSON.stringify(data.usuario));
+        
         mensajeError.style.color = "#4CAF50";
         mensajeError.textContent = "¡Ingreso exitoso! Redirigiendo...";
 
-        // Proximo salto a otra pantalla:
-        // window.location.href = 'dashboard.html';
+        // 6. Redirección automática según el rol 
+        setTimeout(() => {
+            if (data.usuario.rol === 1) {
+                // Si es Director (rol 1), va a la gestión de categorías
+                window.location.href = 'categorias.html';
+            } else {
+                // Si es Empleado (cualquier otro rol), va a su portal
+                window.location.href = 'empleado.html';
+            }
+        }, 1000);
 
     } catch (error) {
-        // 6. Error: Muestra el mensaje en la interfaz
+        // 7. Error: Muestra el mensaje en la interfaz
         console.error(error);
         mensajeError.style.color = "#dc3545";
         mensajeError.textContent = error.message;
