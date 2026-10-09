@@ -21,12 +21,30 @@
     <div class="contenedor">
         <h2>Gestión de Categorías</h2>
 
+        <!-- NUEVO: Formulario para Agregar / Editar -->
+        <section id="seccion-formulario" style="margin-bottom: 20px; padding: 15px; background: white; border-radius: 5px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+            <h3 id="titulo-form" style="margin-top: 0;">Nueva Categoría</h3>
+            <form id="form-categoria">
+                <!-- Input oculto para guardar el ID cuando estemos editando -->
+                <input type="hidden" id="categoria-id">
+                
+                <div style="margin-bottom: 15px;">
+                    <label for="descripcion-categoria" style="font-weight: bold; display: block; margin-bottom: 5px;">Descripción:</label>
+                    <input type="text" id="descripcion-categoria" required style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;">
+                </div>
+                
+                <button type="submit" id="btn-guardar" style="background-color: #28a745; color: white; padding: 10px 15px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">Guardar</button>
+                <button type="button" id="btn-cancelar-edicion" style="display: none; background-color: #6c757d; color: white; padding: 10px 15px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; margin-left: 10px;">Cancelar</button>
+            </form>
+        </section>
+
         <!-- Tabla donde inyectaremos los datos -->
-        <table border="1" id="tabla-categorias">
-            <thead>
+        <table border="1" id="tabla-categorias" style="width: 100%; border-collapse: collapse; text-align: left; background-color: white;">
+            <thead style="background-color: #e9ecef;">
                 <tr>
-                    <th>ID</th>
-                    <th>Descripción</th>
+                    <th style="padding: 12px; border: 1px solid #ddd;">ID</th>
+                    <th style="padding: 12px; border: 1px solid #ddd;">Descripción</th>
+                    <th style="padding: 12px; border: 1px solid #ddd;">Acciones</th> <!-- NUEVA COLUMNA -->
                 </tr>
             </thead>
             <tbody id="cuerpo-tabla">
@@ -36,8 +54,7 @@
     </div>
 
     <!-- Conectamos el script que va a ir a buscar los datos -->
-    <script src="categorias.js"></script>
-    <script src="sesion.js"></script>
+    <script type="module" src="/categorias.js"></script>
+    <script type="module" src="/sesion.js"></script>
 </body>
-
 </html>
