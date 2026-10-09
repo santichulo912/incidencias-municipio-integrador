@@ -6,7 +6,7 @@ const verificarDirector = (req, res, next) => {
     }
 
     // Ajustá el "1" por el número o nombre exacto que use el rol de Director en la base de datos
-    if (req.usuario.rol !== 1) { 
+    if (req.usuario.rol !== 3) { 
         return res.status(403).json({ 
             ok: false, 
             mensaje: 'Acceso denegado. Esta acción es solo para Directores.' 
