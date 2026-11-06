@@ -20,32 +20,6 @@ const obtenerCategorias = async (req, res) => {
     }
 };
 
-// ADD: Crear nueva categoría
-const crearCategoria = async (req, res) => {
-    try {
-        const errores = validationResult(req);
-        if (!errores.isEmpty()) {
-            return res.status(400).json({ ok: false, errores: errores.array() });
-        }
-        const { descripcion } = req.body;
-
-        const query = 'INSERT INTO categorias (descripcion, activo) VALUES ($1, 1) RETURNING *';
-        const result = await pool.query(query, [descripcion]);
-
-        return res.status(201).json({
-            ok: true,
-            mensaje: 'Categoria creada con exito',
-            data: result.rows[0]
-        });
-    } catch (error) {
-        console.error('Error al crear la categoria:', error);
-        return res.status(500).json({
-            ok: false,
-            mensaje: 'Error interno del servidor al crear la categoria.'
-        });
-    }
-};
-
 // READ: Obtener una por ID
 const obtenerCategoriasPorId = async (req, res) => {
     try {
@@ -89,6 +63,32 @@ const actualizarCategoria = async (req, res) => {
     } catch (error) {
         console.error('Error al actualizar la categoría:', error);
         return res.status(500).json({ ok: false, mensaje: 'Error interno del servidor.' });
+    }
+};
+
+// ADD: Crear nueva categoría
+const crearCategoria = async (req, res) => {
+    try {
+        const errores = validationResult(req);
+        if (!errores.isEmpty()) {
+            return res.status(400).json({ ok: false, errores: errores.array() });
+        }
+        const { descripcion } = req.body;
+
+        const query = 'INSERT INTO categorias (descripcion, activo) VALUES ($1, 1) RETURNING *';
+        const result = await pool.query(query, [descripcion]);
+
+        return res.status(201).json({
+            ok: true,
+            mensaje: 'Categoria creada con exito',
+            data: result.rows[0]
+        });
+    } catch (error) {
+        console.error('Error al crear la categoria:', error);
+        return res.status(500).json({
+            ok: false,
+            mensaje: 'Error interno del servidor al crear la categoria.'
+        });
     }
 };
 

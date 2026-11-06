@@ -1,16 +1,15 @@
 const { Router } = require('express');
 const { listar, crear, cancelar } = require('../controllers/incidenciaController');
 const { validarJWT } = require('../middlewares/validarToken');
+const { permitirRoles } = require('../middlewares/validarRoles');
 
 const router = Router();
 
-// Obtener todas las incidencias del usuario logueado
-router.get('/', validarJWT, listar);
+// Los 3 roles pueden ver y crear sus incidencias
+router.get('/', [validarJWT, permitirRoles(1, 2, 3)], listar);
+router.post('/', [validarJWT, permitirRoles(1, 2, 3)], crear);
 
-// Crear una nueva incidencia
-router.post('/', validarJWT, crear);
-
-// Cancelar una incidencia (cambiar estado)
-router.put('/:id/cancelar', validarJWT, cancelar);
+// Solo Director (1) y Técnico (2) pueden cancelar/modificar estado
+router.put('/:id/cancelar', [validarJWT, permitirRoles(1, 2)], cancelar);
 
 module.exports = router;
