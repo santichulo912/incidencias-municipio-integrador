@@ -1,11 +1,10 @@
 const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
-const { validationResult } = require('express-validator'); 
-const { Usuario } = require('../models');
+const { validationResult } = require('express-validator');
+const pool = require('../config/database');
 
 const login = async (req, res) => {
     try {
-        // 1. Validar los datos de entrada (express-validator)
         const errores = validationResult(req);
         if (!errores.isEmpty()) {
             return res.status(400).json({
@@ -16,15 +15,11 @@ const login = async (req, res) => {
 
         const { usuario, contrasenia } = req.body;
 
-        // 2. Buscar el usuario en la base de datos usando Sequelize y aplicando Soft Delete
-        const user = await Usuario.findOne({
-            where: { 
-                usuario: usuario, 
-                activo: 1 
-            }
-        });
+        // Buscar el usuario parametrizado
+        const queryText = 'SELECT * FROM usuarios WHERE usuario = $1 AND activo = 1';
+        const result = await pool.query(queryText, [usuario]);
+        const user = result.rows[0];
 
-        // 3. Validar si el usuario existe o está activo
         if (!user) {
             return res.status(401).json({
                 ok: false,
@@ -32,7 +27,6 @@ const login = async (req, res) => {
             });
         }
 
-        // 4. Comparar la contraseña ingresada con el hash de la base de datos (SHA-256)
         const hashIngresado = crypto.createHash('sha256').update(contrasenia).digest('hex');
 
         if (hashIngresado !== user.contrasenia) {
@@ -42,7 +36,6 @@ const login = async (req, res) => {
             });
         }
 
-        // 5. Generar el Token JWT con el payload necesario
         const payload = {
             id_usuario: user.id_usuario,
             rol: user.rol,
@@ -53,7 +46,6 @@ const login = async (req, res) => {
             expiresIn: '4h'
         });
 
-        // 6. Enviar respuesta consistente y exitosa
         return res.status(200).json({
             ok: true,
             mensaje: 'Inicio de sesión exitoso',
@@ -78,4 +70,3 @@ const login = async (req, res) => {
 module.exports = {
     login
 };
-

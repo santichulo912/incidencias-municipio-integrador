@@ -1,47 +1,41 @@
 const { validationResult } = require('express-validator');
-const Categoria = require('../models/Categoria'); 
+const pool = require('../config/database');
 
-
-//BROWSE: Listas todas las categorias activas
+// BROWSE: Listar categorías activas
 const obtenerCategorias = async (req, res) => {
-    try{
-        const categorias = await Categoria.findAll({
-            where: {activo: 1}
-        });
+    try {
+        const query = 'SELECT * FROM categorias WHERE activo = 1';
+        const result = await pool.query(query);
 
         return res.status(200).json({
             ok: true,
-            data: categorias
+            data: result.rows
         });
     } catch (error) {
-        console.error('Error al obtener categorias:', error)
+        console.error('Error al obtener categorias:', error);
         return res.status(500).json({
             ok: false,
-            mensaje: 'Error interno del servior al obtener categorias.'
+            mensaje: 'Error interno del servidor al obtener categorias.'
         });
     }
 };
 
-//ADD: Creas una nueva categoria
+// ADD: Crear nueva categoría
 const crearCategoria = async (req, res) => {
-    try{
+    try {
         const errores = validationResult(req);
-        if (!errores.isEmpty()){
-            return res.status(400).json({
-                ok: false,
-                errores: errores.array()
-            });
+        if (!errores.isEmpty()) {
+            return res.status(400).json({ ok: false, errores: errores.array() });
         }
-        const {descripcion} = req.body;
+        const { descripcion } = req.body;
 
-        const nuevaCategoria = await Categoria.create({
-        descripcion: descripcion
-        });
+        const query = 'INSERT INTO categorias (descripcion, activo) VALUES ($1, 1) RETURNING *';
+        const result = await pool.query(query, [descripcion]);
 
         return res.status(201).json({
             ok: true,
             mensaje: 'Categoria creada con exito',
-            data: nuevaCategoria
+            data: result.rows[0]
         });
     } catch (error) {
         console.error('Error al crear la categoria:', error);
@@ -50,32 +44,30 @@ const crearCategoria = async (req, res) => {
             mensaje: 'Error interno del servidor al crear la categoria.'
         });
     }
-
 };
 
-//READ: Leer una sola categoria por si ID
+// READ: Obtener una por ID
 const obtenerCategoriasPorId = async (req, res) => {
-    try{
-        const {id} = req.params;
+    try {
+        const { id } = req.params;
 
-        const categoria = await  Categoria.findOne({
-            where: {id_categoria: id, activo: 1}
-        });
+        const query = 'SELECT * FROM categorias WHERE id_categoria = $1 AND activo = 1';
+        const result = await pool.query(query, [id]);
 
-        if (!categoria){
+        if (result.rows.length === 0) {
             return res.status(404).json({
                 ok: false,
                 mensaje: 'Categoria no encontrada o inactiva.'
             });
         }
-        return res.status(200).json({ok: true, data: categoria});
+        return res.status(200).json({ ok: true, data: result.rows[0] });
     } catch (error) {
         console.error('Error al obtener la categoria:', error);
-        return res.status(500).json({ok: false, mensaje: 'Error interno del servidor.'});
+        return res.status(500).json({ ok: false, mensaje: 'Error interno del servidor.' });
     }
 };
 
-//EDIT: Modificar una categoria existente
+// EDIT: Modificar categoría existente
 const actualizarCategoria = async (req, res) => {
     try {
         const errores = validationResult(req);
@@ -86,13 +78,12 @@ const actualizarCategoria = async (req, res) => {
         const { id } = req.params;
         const { descripcion } = req.body;
 
-        const categoria = await Categoria.findOne({ where: { id_categoria: id, activo: 1 } });
+        const query = 'UPDATE categorias SET descripcion = $1 WHERE id_categoria = $2 AND activo = 1 RETURNING *';
+        const result = await pool.query(query, [descripcion, id]);
 
-        if (!categoria) {
+        if (result.rows.length === 0) {
             return res.status(404).json({ ok: false, mensaje: 'Categoría no encontrada.' });
         }
-
-        await Categoria.update({ descripcion }, { where: { id_categoria: id } });
 
         return res.status(200).json({ ok: true, mensaje: 'Categoría actualizada con éxito.' });
     } catch (error) {
@@ -101,19 +92,17 @@ const actualizarCategoria = async (req, res) => {
     }
 };
 
-//DELETE: Borrado lógico (Soft Delete)
+// DELETE: Soft Delete (marcar activo = 0)
 const eliminarCategoria = async (req, res) => {
     try {
         const { id } = req.params;
 
-        const categoria = await Categoria.findOne({ where: { id_categoria: id, activo: 1 } });
+        const query = 'UPDATE categorias SET activo = 0 WHERE id_categoria = $1 AND activo = 1 RETURNING *';
+        const result = await pool.query(query, [id]);
 
-        if (!categoria) {
+        if (result.rows.length === 0) {
             return res.status(404).json({ ok: false, mensaje: 'Categoría no encontrada.' });
         }
-
-        // Acá aplicamos el Soft Delete cambiando el estado a 0
-        await Categoria.update({ activo: 0 }, { where: { id_categoria: id } });
 
         return res.status(200).json({ ok: true, mensaje: 'Categoría eliminada con éxito.' });
     } catch (error) {

@@ -1,12 +1,13 @@
 require('dotenv').config();
 const app = require('./src/app');
-const sequelize = require('./src/config/database');
+const pool = require('./src/config/database');
 
 const PORT = process.env.PORT || 3000;
 
 async function iniciar() {
   try {
-    await sequelize.authenticate();
+    // Probar la conexión con una consulta nativa simple
+    await pool.query('SELECT 1');
     console.log('Conexión a la base de datos establecida correctamente.');
 
     app.listen(PORT, () => {
@@ -17,6 +18,4 @@ async function iniciar() {
   }
 }
 
-iniciar(); 
-
-
+iniciar();
