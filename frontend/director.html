@@ -4,8 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Categorías - Sistema de Incidencias</title>
-    <!-- Hoja de style.css -->
+    <title>Director de Sistemas - Sistema de Incidencias</title>
+
     <link rel="stylesheet" href="style.css">
 </head>
 
@@ -22,24 +22,30 @@
         <h2>Gestión de Categorías</h2>
 
         <!-- NUEVO: Formulario para Agregar / Editar -->
-        <section id="seccion-formulario" style="margin-bottom: 20px; padding: 15px; background: white; border-radius: 5px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+        <section id="seccion-formulario"
+            style="margin-bottom: 20px; padding: 15px; background: white; border-radius: 5px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
             <h3 id="titulo-form" style="margin-top: 0;">Nueva Categoría</h3>
             <form id="form-categoria">
                 <!-- Input oculto para guardar el ID cuando estemos editando -->
                 <input type="hidden" id="categoria-id">
-                
+
                 <div style="margin-bottom: 15px;">
-                    <label for="descripcion-categoria" style="font-weight: bold; display: block; margin-bottom: 5px;">Descripción:</label>
-                    <input type="text" id="descripcion-categoria" required style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;">
+                    <label for="descripcion-categoria"
+                        style="font-weight: bold; display: block; margin-bottom: 5px;">Descripción:</label>
+                    <input type="text" id="descripcion-categoria" required
+                        style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;">
                 </div>
-                
-                <button type="submit" id="btn-guardar" style="background-color: #28a745; color: white; padding: 10px 15px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">Guardar</button>
-                <button type="button" id="btn-cancelar-edicion" style="display: none; background-color: #6c757d; color: white; padding: 10px 15px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; margin-left: 10px;">Cancelar</button>
+
+                <button type="submit" id="btn-guardar"
+                    style="background-color: #28a745; color: white; padding: 10px 15px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">Guardar</button>
+                <button type="button" id="btn-cancelar-edicion"
+                    style="display: none; background-color: #6c757d; color: white; padding: 10px 15px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; margin-left: 10px;">Cancelar</button>
             </form>
         </section>
 
         <!-- Tabla donde inyectaremos los datos -->
-        <table border="1" id="tabla-categorias" style="width: 100%; border-collapse: collapse; text-align: left; background-color: white;">
+        <table border="1" id="tabla-categorias"
+            style="width: 100%; border-collapse: collapse; text-align: left; background-color: white;">
             <thead style="background-color: #e9ecef;">
                 <tr>
                     <th style="padding: 12px; border: 1px solid #ddd;">ID</th>
@@ -54,7 +60,8 @@
     </div>
 
     <!-- Conectamos el script que va a ir a buscar los datos -->
-    <script type="module" src="/categorias.js"></script>
+    <script type="module" src="/director.js"></script>
     <script type="module" src="/sesion.js"></script>
 </body>
+
 </html>

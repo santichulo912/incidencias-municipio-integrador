@@ -17,7 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
 loginForm.addEventListener('submit', async (event) => {
     event.preventDefault(); // Evita que la página se recargue
 
-    // 3. Captura los valores ingresados
+    // 3. Captura los valores ingresados de autenticación
     const usuario = document.getElementById('usuario').value;
     const contrasenia = document.getElementById('contrasenia').value;
 
@@ -59,9 +59,9 @@ loginForm.addEventListener('submit', async (event) => {
         // 6. Redirección automática según el rol
         setTimeout(() => {
             if (data.usuario.rol == 1) {
-                window.location.href = 'categorias.html';
+                window.location.href = 'director.html';
             } else if (data.usuario.rol == 2) {
-                window.location.href = 'empleado_sistemas.html';
+                window.location.href = 'tecnico.html';
             } else if (data.usuario.rol == 3) {
                 window.location.href = 'empleado.html';
             }
