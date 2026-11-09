@@ -1,42 +1,67 @@
 const pool = require('../config/database');
 
-// 1. Listar las incidencias del usuario logueado
-async function listar(req, res) {
+//Listar las incidencias del usuario logueado
+const pool = require('../config/database');
+
+async function listarIncidencias(req, res) {
+    // Capturamos el usuario logueado 
+    const { id_usuario, rol } = req.usuario;
+
     try {
-        const idUsuario = req.usuario.id_usuario;
+        let query = `
+      SELECT 
+        i.id_incidencia,
+        i.descripcion_pedido,
+        i.creado,
+        i.id_estado,
+        e.descripcion AS estado_descripcion,
+        a.descripcion AS articulo_descripcion,
+        u.nombres AS solicitante_nombres,
+        u.apellidos AS solicitante_apellidos
+      FROM incidencias i
+      INNER JOIN estados e ON i.id_estado = e.id_estado
+      INNER JOIN articulos a ON i.id_articulo = a.id_articulo
+      INNER JOIN usuarios u ON i.id_usuario = u.id_usuario
+    `;
 
-        const query = `
-          SELECT 
-            i.id_incidencia,
-            i.id_articulo,
-            i.id_estado,
-            i.creado_por,
-            i.creado,
-            i.prioridad,
-            i.descripcion_pedido,
-            a.descripcion AS articulo_descripcion
-          FROM incidencias i
-          LEFT JOIN articulos a ON i.id_articulo = a.id_articulo
-          WHERE i.creado_por = $1
-          ORDER BY i.id_incidencia DESC;
-        `;
+        const valores = [];
 
-        const result = await pool.query(query, [idUsuario]);
+        //Visualizacion según rol:
+        if (rol === 3) {
+            //Empleado Municipal: solo ve sus propias incidencias
+            query += ` WHERE i.id_usuario = $1`;
+            valores.push(id_usuario);
 
-        res.json({ data: result.rows });
+        } else if (rol === 2) {
+            //Técnico: ve las asignadas a su cargo
+            query += ` WHERE i.id_tecnico_asignado = $1`;
+            valores.push(id_usuario);
+
+        }
+        //Director: ve todas las incidencias del sistema.
+
+        query += ` ORDER BY i.creado DESC;`;
+
+        const result = await pool.query(query, valores);
+
+        res.json({
+            success: true,
+            data: result.rows
+        });
+
     } catch (error) {
-        console.error("Error al listar incidencias:", error);
-        res.status(500).json({ mensaje: 'Error al listar incidencias' });
+        console.error('Error al listar incidencias:', error);
+        res.status(500).json({ success: false, mensaje: 'Error al listar incidencias' });
     }
 }
 
-// 2. Crear una nueva incidencia
-async function crear(req, res) {
+//Crear una nueva incidencia
+async function crearIncidencia(req, res) {
     try {
         const idUsuario = req.usuario.id_usuario;
         const { id_articulo, descripcion_pedido } = req.body;
 
-        // 1. Insertar en la tabla principal y retornar la fila creada con su id_incidencia
+        //Insertar en la tabla principal y retornar la fila creada con su id_incidencia
         const queryIncidencia = `
           INSERT INTO incidencias (id_articulo, id_estado, creado_por, creado, prioridad, descripcion_pedido)
           VALUES ($1, $2, $3, NOW(), $4, $5)
@@ -46,7 +71,7 @@ async function crear(req, res) {
         const resultIncidencia = await pool.query(queryIncidencia, valuesIncidencia);
         const nuevaIncidencia = resultIncidencia.rows[0];
 
-        // 2. Insertar el historial en incidencias_estados
+        //Insertar el historial en incidencias_estados
         const queryEstado = `
           INSERT INTO incidencias_estados (id_incidencia, id_estado, fecha_hora_estado)
           VALUES ($1, $2, NOW());
@@ -63,41 +88,124 @@ async function crear(req, res) {
     }
 }
 
-// 3. Cancelar una incidencia
-async function cancelar(req, res) {
+//Cancelar una incidencia
+async function cancelarIncidencia(req, res) {
     try {
         const { id } = req.params;
-        const idUsuario = req.usuario.id_usuario;
+        const { id_usuario, rol } = req.usuario; // Extraemos id y rol
 
-        // 1. Actualizamos el estado a 2 en la tabla principal asegurando que sea del usuario
-        const queryUpdate = `
-          UPDATE incidencias 
-          SET id_estado = 2 
-          WHERE id_incidencia = $1 AND creado_por = $2
-          RETURNING *;
-        `;
-        const resultUpdate = await pool.query(queryUpdate, [id, idUsuario]);
+        let queryUpdate = '';
+        let parametros = [];
 
-        if (resultUpdate.rows.length === 0) {
-            return res.status(404).json({ mensaje: 'Incidencia no encontrada o no tienes permisos' });
+        // Si es Director
+        if (rol === 1) {
+            queryUpdate = `
+                UPDATE incidencias 
+                SET id_estado = 4 
+                WHERE id_incidencia = $1 AND id_estado = 1
+                RETURNING *;
+            `;
+            parametros = [id];
+        } else {
+            // Si es Empleado
+            queryUpdate = `
+                UPDATE incidencias 
+                SET id_estado = 4 
+                WHERE id_incidencia = $1 AND id_usuario = $2 AND id_estado = 1
+                RETURNING *;
+            `;
+            parametros = [id, id_usuario];
         }
 
-        // 2. Registramos el cambio de estado en el historial
-        const queryEstado = `
-          INSERT INTO incidencias_estados (id_incidencia, id_estado, fecha_hora_estado)
-          VALUES ($1, $2, NOW());
-        `;
-        await pool.query(queryEstado, [id, 2]);
+        const resultUpdate = await pool.query(queryUpdate, parametros);
 
-        res.json({ mensaje: 'Incidencia cancelada correctamente' });
+        if (resultUpdate.rows.length === 0) {
+            return res.status(404).json({
+                success: false,
+                mensaje: 'Incidencia no encontrada, no está en estado Pendiente o no tienes permisos'
+            });
+        }
+
+        // Registramos el cambio de estado en incidencias_estados con el estado Cancelada
+        const queryEstado = `
+            INSERT INTO incidencias_estados (id_incidencia, id_estado, fecha_hora_estado)
+            VALUES ($1, $2, NOW());
+        `;
+        await pool.query(queryEstado, [id, 4]);
+
+        res.json({
+            success: true,
+            mensaje: 'Incidencia cancelada correctamente',
+            data: resultUpdate.rows[0]
+        });
+
     } catch (error) {
         console.error("Error al cancelar incidencia:", error);
-        res.status(500).json({ mensaje: 'Error al cancelar la incidencia' });
+        res.status(500).json({ success: false, mensaje: 'Error al cancelar la incidencia' });
+    }
+}
+
+//Cambiar estado de incidencia
+async function cambiarEstado(req, res) {
+    const { id } = req.params;
+    const { id_estado } = req.body;
+    const { id_usuario, rol } = req.usuario;
+
+    //Validamos que solo intente pasar a estados válidos (2 o 3)
+    if (![2, 3].includes(Number(id_estado))) {
+        return res.status(400).json({
+            success: false,
+            mensaje: 'Estado no válido para esta operación.'
+        });
+    }
+
+    try {
+        let query = '';
+        let valores = [];
+
+        if (rol === 1) {
+            //Director: puede actualizar el estado de cualquier incidencia no cancelada
+            query = `
+        UPDATE incidencias 
+        SET id_estado = $1 
+        WHERE id_incidencia = $2 AND id_estado != 4
+        RETURNING *;
+      `;
+            valores = [id_estado, id];
+        } else {
+            //Técnico: actualiza solo las incidencias asignadas a él y que no estén canceladas
+            query = `
+        UPDATE incidencias 
+        SET id_estado = $1 
+        WHERE id_incidencia = $2 AND id_tecnico_asignado = $3 AND id_estado != 4
+        RETURNING *;
+      `;
+            valores = [id_estado, id, id_usuario];
+        }
+
+        const result = await pool.query(query, valores);
+
+        if (result.rows.length === 0) {
+            return res.status(400).json({
+                success: false,
+                mensaje: 'No se pudo actualizar el estado: la incidencia no existe, no está asignada a tu usuario o se encuentra cancelada.'
+            });
+        }
+
+        res.json({
+            success: true,
+            mensaje: 'Estado de la incidencia actualizado con éxito.',
+            data: result.rows[0]
+        });
+
+    } catch (error) {
+        console.error('Error al cambiar el estado de la incidencia:', error);
+        res.status(500).json({ success: false, mensaje: 'Error al actualizar la incidencia' });
     }
 }
 
 module.exports = {
-    listar,
-    crear,
-    cancelar
+    listarIncidencias,
+    crearIncidencia,
+    cancelarIncidencia
 };

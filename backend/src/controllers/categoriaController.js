@@ -1,7 +1,7 @@
 const { validationResult } = require('express-validator');
 const pool = require('../config/database');
 
-// BROWSE: Listar categorías activas
+//BROWSE:Listar categorías activas
 const obtenerCategorias = async (req, res) => {
     try {
         const query = 'SELECT * FROM categorias WHERE activo = 1';
@@ -20,7 +20,7 @@ const obtenerCategorias = async (req, res) => {
     }
 };
 
-// READ: Obtener una por ID
+//READ:Obtener categoria por ID
 const obtenerCategoriasPorId = async (req, res) => {
     try {
         const { id } = req.params;
@@ -41,7 +41,7 @@ const obtenerCategoriasPorId = async (req, res) => {
     }
 };
 
-// EDIT: Modificar categoría existente
+//EDIT:Modificar categoría 
 const actualizarCategoria = async (req, res) => {
     try {
         const errores = validationResult(req);
@@ -66,7 +66,7 @@ const actualizarCategoria = async (req, res) => {
     }
 };
 
-// ADD: Crear nueva categoría
+//ADD:Crear nueva categoría
 const crearCategoria = async (req, res) => {
     try {
         const errores = validationResult(req);
@@ -92,7 +92,7 @@ const crearCategoria = async (req, res) => {
     }
 };
 
-// DELETE: Soft Delete (marcar activo = 0)
+//DELETE: Soft Delete (marcar activo = 0)
 const eliminarCategoria = async (req, res) => {
     try {
         const { id } = req.params;

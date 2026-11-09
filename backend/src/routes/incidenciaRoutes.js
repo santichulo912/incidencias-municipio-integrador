@@ -1,15 +1,37 @@
 const { Router } = require('express');
-const { listar, crear, cancelar } = require('../controllers/incidenciaController');
+const { check } = require('express-validator');
+const { listarIncidencias, crearIncidencia, cancelarIncidencia, cambiarEstado } = require('../controllers/incidenciaController');
 const { validarJWT } = require('../middlewares/validarToken');
 const { permitirRoles } = require('../middlewares/validarRoles');
 
 const router = Router();
 
-// Los 3 roles pueden ver y crear sus incidencias
-router.get('/', [validarJWT, permitirRoles(1, 2, 3)], listar);
-router.post('/', [validarJWT, permitirRoles(1, 2, 3)], crear);
+const {
+    listarIncidencias,
+    crearIncidencia,
+    cancelarIncidencia,
+    cambiarEstado
+} = require('../controllers/incidenciaController');
 
-// Solo Director (1) y Técnico (2) pueden cancelar/modificar estado
-router.put('/:id/cancelar', [validarJWT, permitirRoles(1, 2)], cancelar);
+//Consultar incidencias 
+router.get('/', [validarJWT, permitirRoles(1, 2, 3)], listarIncidencias);
+
+//Crear incidencia (Cualquier empleado autenticado)
+router.post('/', [
+    validarJWT,
+    permitirRoles(1, 2, 3),
+    check('id_articulo', 'El artículo es obligatorio').not().isEmpty(),
+    check('descripcion_pedido', 'La descripción del pedido es obligatoria').not().isEmpty()
+], crearIncidencia);
+
+//Cancelar incidencia (Permitido para los 3 roles: el empleado cancela las suyas y el Director/Técnico las del sistema)
+router.put('/:id/cancelar', [validarJWT, permitirRoles(1, 2, 3)], cancelarIncidencia);
+
+//Cambiar estado de incidencia
+router.put('/:id/estado', [
+    validarJWT,
+    permitirRoles(1, 2),
+    check('id_estado', 'El nuevo estado es obligatorio').isInt()
+], cambiarEstado);
 
 module.exports = router;
