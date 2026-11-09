@@ -1,6 +1,6 @@
 const { Router } = require('express');
 const { check } = require('express-validator');
-const { listarIncidencias, crearIncidencia, cancelarIncidencia, cambiarEstado } = require('../controllers/incidenciaController');
+const { listarIncidencias, crearIncidencia, cancelarIncidencia, cambiarEstado, obtenerTecnicos } = require('../controllers/incidenciaController');
 const { validarJWT } = require('../middlewares/validarToken');
 const { permitirRoles } = require('../middlewares/validarRoles');
 
@@ -10,7 +10,8 @@ const {
     listarIncidencias,
     crearIncidencia,
     cancelarIncidencia,
-    cambiarEstado
+    cambiarEstado,
+    obtenerTecnicos
 } = require('../controllers/incidenciaController');
 
 //Consultar incidencias 
@@ -33,5 +34,12 @@ router.put('/:id/estado', [
     permitirRoles(1, 2),
     check('id_estado', 'El nuevo estado es obligatorio').isInt()
 ], cambiarEstado);
+
+// Asignar incidencia a un técnico
+router.put('/:id/asignar', [
+    validarJWT,
+    permitirRoles(1),
+    check('id_tecnico', 'El ID del técnico es obligatorio y debe ser un número').isInt()
+], asignarTecnico);
 
 module.exports = router;

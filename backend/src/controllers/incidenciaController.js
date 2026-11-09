@@ -204,8 +204,31 @@ async function cambiarEstado(req, res) {
     }
 }
 
+//Obtener lista de técnicos activos
+async function obtenerTecnicos(req, res) {
+    try {
+        const query = `
+      SELECT id_usuario, nombres, apellidos 
+      FROM usuarios 
+      WHERE rol = 2 AND activo = 1 
+      ORDER BY apellidos, nombres ASC;
+    `;
+        const result = await pool.query(query);
+
+        res.json({
+            ok: true,
+            data: result.rows
+        });
+    } catch (error) {
+        console.error('Error al listar técnicos:', error);
+        res.status(500).json({ ok: false, mensaje: 'Error al obtener la lista de técnicos' });
+    }
+}
+
 module.exports = {
     listarIncidencias,
     crearIncidencia,
-    cancelarIncidencia
+    cancelarIncidencia,
+    cambiarEstado,
+    obtenerTecnicos
 };
