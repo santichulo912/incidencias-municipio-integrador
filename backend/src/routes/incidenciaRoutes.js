@@ -1,6 +1,5 @@
 const { Router } = require('express');
 const { check } = require('express-validator');
-const { listarIncidencias, crearIncidencia, cancelarIncidencia, cambiarEstado, obtenerTecnicos } = require('../controllers/incidenciaController');
 const { validarJWT } = require('../middlewares/validarToken');
 const { permitirRoles } = require('../middlewares/validarRoles');
 
@@ -41,5 +40,7 @@ router.put('/:id/asignar', [
     permitirRoles(1),
     check('id_tecnico', 'El ID del técnico es obligatorio y debe ser un número').isInt()
 ], asignarTecnico);
+
+router.get('/tecnicos', [validarJWT, permitirRoles(1)], obtenerTecnicos);
 
 module.exports = router;
