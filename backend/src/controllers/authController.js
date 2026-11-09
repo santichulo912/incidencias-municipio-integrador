@@ -2,9 +2,11 @@ const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
 const { validationResult } = require('express-validator');
 const pool = require('../config/database');
+const { ok } = require('assert');
 
 const login = async (req, res) => {
     try {
+        //Validar errores de express-validator
         const errores = validationResult(req);
         if (!errores.isEmpty()) {
             return res.status(400).json({
@@ -15,7 +17,7 @@ const login = async (req, res) => {
 
         const { usuario, contrasenia } = req.body;
 
-        // Buscar el usuario parametrizado
+        //Buscar el usuario
         const queryText = 'SELECT * FROM usuarios WHERE usuario = $1 AND activo = 1';
         const result = await pool.query(queryText, [usuario]);
         const user = result.rows[0];
@@ -27,6 +29,7 @@ const login = async (req, res) => {
             });
         }
 
+        //Hashear contraseña enviada con SHA-256
         const hashIngresado = crypto.createHash('sha256').update(contrasenia).digest('hex');
 
         if (hashIngresado !== user.contrasenia) {
@@ -36,16 +39,17 @@ const login = async (req, res) => {
             });
         }
 
+        //Payload del Token JWT
         const payload = {
             id_usuario: user.id_usuario,
-            rol: user.rol,
-            id_area: user.id_area
+            rol: user.rol
         };
 
         const token = jwt.sign(payload, process.env.JWT_SECRET, {
             expiresIn: '4h'
         });
 
+        //Respuesta JSON al cliente
         return res.status(200).json({
             ok: true,
             mensaje: 'Inicio de sesión exitoso',

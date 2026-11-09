@@ -45,7 +45,7 @@ async function listarIncidencias(req, res) {
         const result = await pool.query(query, valores);
 
         res.json({
-            success: true,
+            ok: true,
             data: result.rows
         });
 
@@ -121,7 +121,7 @@ async function cancelarIncidencia(req, res) {
 
         if (resultUpdate.rows.length === 0) {
             return res.status(404).json({
-                success: false,
+                ok: false,
                 mensaje: 'Incidencia no encontrada, no está en estado Pendiente o no tienes permisos'
             });
         }
@@ -134,7 +134,7 @@ async function cancelarIncidencia(req, res) {
         await pool.query(queryEstado, [id, 4]);
 
         res.json({
-            success: true,
+            ok: true,
             mensaje: 'Incidencia cancelada correctamente',
             data: resultUpdate.rows[0]
         });
@@ -154,7 +154,7 @@ async function cambiarEstado(req, res) {
     //Validamos que solo intente pasar a estados válidos (2 o 3)
     if (![2, 3].includes(Number(id_estado))) {
         return res.status(400).json({
-            success: false,
+            ok: false,
             mensaje: 'Estado no válido para esta operación.'
         });
     }
@@ -187,20 +187,20 @@ async function cambiarEstado(req, res) {
 
         if (result.rows.length === 0) {
             return res.status(400).json({
-                success: false,
+                ok: false,
                 mensaje: 'No se pudo actualizar el estado: la incidencia no existe, no está asignada a tu usuario o se encuentra cancelada.'
             });
         }
 
         res.json({
-            success: true,
+            ok: true,
             mensaje: 'Estado de la incidencia actualizado con éxito.',
             data: result.rows[0]
         });
 
     } catch (error) {
         console.error('Error al cambiar el estado de la incidencia:', error);
-        res.status(500).json({ success: false, mensaje: 'Error al actualizar la incidencia' });
+        res.status(500).json({ ok: false, mensaje: 'Error al actualizar la incidencia' });
     }
 }
 

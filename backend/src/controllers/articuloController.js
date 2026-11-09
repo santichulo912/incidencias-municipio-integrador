@@ -21,10 +21,10 @@ async function listarArticulos(req, res) {
 
     const result = await pool.query(query);
 
-    res.json({ success: true, data: result.rows });
+    res.json({ ok: true, data: result.rows });
   } catch (error) {
     console.error('Error al listar artículos:', error);
-    res.status(500).json({ success: false, message: 'Error al listar artículos' });
+    res.status(500).json({ ok: false, message: 'Error al listar artículos' });
   }
 }
 
@@ -50,13 +50,13 @@ async function obtenerArticuloPorId(req, res) {
     const result = await pool.query(query, [id]);
 
     if (result.rows.length === 0) {
-      return res.status(404).json({ success: false, mensaje: 'Artículo no encontrado' });
+      return res.status(404).json({ ok: false, mensaje: 'Artículo no encontrado' });
     }
 
-    res.json({ success: true, data: result.rows[0] });
+    res.json({ ok: true, data: result.rows[0] });
   } catch (error) {
     console.error('Error al obtener artículo:', error);
-    res.status(500).json({ success: false, mensaje: 'Error al obtener el artículo' });
+    res.status(500).json({ ok: false, mensaje: 'Error al obtener el artículo' });
   }
 }
 
@@ -76,17 +76,17 @@ async function actualizarArticulo(req, res) {
     const result = await pool.query(query, [descripcion, id_area, id_categoria, id]);
 
     if (result.rows.length === 0) {
-      return res.status(404).json({ success: false, mensaje: 'Artículo no encontrado para actualizar' });
+      return res.status(404).json({ ok: false, mensaje: 'Artículo no encontrado para actualizar' });
     }
 
     res.json({
-      success: true,
+      ok: true,
       mensaje: 'Artículo actualizado exitosamente',
       data: result.rows[0]
     });
   } catch (error) {
     console.error('Error al actualizar artículo:', error);
-    res.status(500).json({ success: false, mensaje: 'Error al actualizar el artículo' });
+    res.status(500).json({ ok: false, mensaje: 'Error al actualizar el artículo' });
   }
 }
 
@@ -104,13 +104,13 @@ async function crearArticulo(req, res) {
     const result = await pool.query(query, [descripcion, id_area, id_categoria]);
 
     res.status(201).json({
-      success: true,
+      ok: true,
       mensaje: 'Artículo creado exitosamente',
       data: result.rows[0]
     });
   } catch (error) {
     console.error('Error al crear artículo:', error);
-    res.status(500).json({ success: false, mensaje: 'Error al crear el artículo' });
+    res.status(500).json({ ok: false, mensaje: 'Error al crear el artículo' });
   }
 }
 
@@ -129,16 +129,16 @@ async function eliminarArticulo(req, res) {
     const result = await pool.query(query, [id]);
 
     if (result.rows.length === 0) {
-      return res.status(404).json({ success: false, mensaje: 'Artículo no encontrado' });
+      return res.status(404).json({ ok: false, mensaje: 'Artículo no encontrado' });
     }
 
     res.json({
-      success: true,
+      ok: true,
       mensaje: 'Artículo eliminado con éxito'
     });
   } catch (error) {
     console.error('Error al eliminar artículo:', error);
-    res.status(500).json({ success: false, mensaje: 'Error al eliminar el artículo' });
+    res.status(500).json({ ok: false, mensaje: 'Error al eliminar el artículo' });
   }
 }
 
