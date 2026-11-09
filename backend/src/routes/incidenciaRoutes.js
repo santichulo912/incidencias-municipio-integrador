@@ -10,6 +10,7 @@ const {
     crearIncidencia,
     cancelarIncidencia,
     cambiarEstado,
+    asignarTecnico,
     obtenerTecnicos
 } = require('../controllers/incidenciaController');
 

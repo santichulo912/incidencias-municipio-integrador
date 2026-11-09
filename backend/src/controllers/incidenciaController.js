@@ -204,6 +204,54 @@ async function cambiarEstado(req, res) {
     }
 }
 
+// Asignar incidencia a técnico
+async function asignarTecnico(req, res) {
+    const { id } = req.params; // ID de la incidencia
+    const { id_tecnico } = req.body; // ID del usuario técnico (id_usuario)
+
+    try {
+        //Valida que el usuario exista, esté activo y sea Técnico
+        const queryTecnico = `
+      SELECT id_usuario FROM usuarios 
+      WHERE id_usuario = $1 AND rol = 2 AND activo = 1;
+    `;
+        const resTecnico = await pool.query(queryTecnico, [id_tecnico]);
+
+        if (resTecnico.rows.length === 0) {
+            return res.status(400).json({
+                ok: false,
+                mensaje: 'El usuario especificado no existe o no es un técnico habilitado.'
+            });
+        }
+
+        //Actualizamos campo asignado_a en la incidencia
+        const queryAsignar = `
+      UPDATE incidencias 
+      SET asignado_a = $1 
+      WHERE id_incidencia = $2 AND id_estado != 4
+      RETURNING *;
+    `;
+        const result = await pool.query(queryAsignar, [id_tecnico, id]);
+
+        if (result.rows.length === 0) {
+            return res.status(404).json({
+                ok: false,
+                mensaje: 'Incidencia no encontrada o se encuentra cancelada.'
+            });
+        }
+
+        res.json({
+            ok: true,
+            mensaje: 'Incidencia asignada al técnico correctamente',
+            data: result.rows[0]
+        });
+
+    } catch (error) {
+        console.error('Error al asignar técnico:', error);
+        res.status(500).json({ ok: false, mensaje: 'Error interno al asignar el técnico' });
+    }
+}
+
 //Obtener lista de técnicos activos
 async function obtenerTecnicos(req, res) {
     try {
@@ -230,5 +278,6 @@ module.exports = {
     crearIncidencia,
     cancelarIncidencia,
     cambiarEstado,
+    asignarTecnico,
     obtenerTecnicos
 };
