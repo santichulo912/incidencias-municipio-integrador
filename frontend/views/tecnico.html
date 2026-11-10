@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel del Técnico - Sistemas</title>
+    <link rel="stylesheet" href="../css/pantallas.css">
+</head>
+
+<body>
+    <header>
+        <h1>Portal del Empleado de Sistemas</h1>
+        <div>
+            <span id="nombre-usuario">Cargando...</span>
+            <button type="button" id="btn-logout">Cerrar Sesión</button>
+        </div>
+    </header>
+
+    <main class="contenedor" style="padding: 20px;">
+
+        <!--INCIDENCIAS ASIGNADAS-->
+        <section style="margin-bottom: 40px;">
+            <h2>Incidencias a Mi Cargo</h2>
+            <table border="1"
+                style="width: 100%; border-collapse: collapse; text-align: left; background-color: white;">
+                <thead style="background-color: #e9ecef;">
+                    <tr>
+                        <th style="padding: 10px;">ID</th>
+                        <th style="padding: 10px;">Solicitado por</th>
+                        <th style="padding: 10px;">Artículo</th>
+                        <th style="padding: 10px;">Descripción</th>
+                        <th style="padding: 10px;">Fecha</th>
+                        <th style="padding: 10px;">Estado</th>
+                        <th style="padding: 10px;">Acciones / Cambiar Estado</th>
+                    </tr>
+                </thead>
+                <tbody id="tabla-tecnico-incidencias"></tbody>
+            </table>
+        </section>
+
+        <!--BREAD de categorias-->
+        <section
+            style="margin-bottom: 40px; background: white; padding: 20px; border-radius: 5px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+            <h3 id="titulo-form-cat">Nueva Categoría</h3>
+            <form id="form-categoria" style="margin-bottom: 15px;">
+                <input type="hidden" id="cat-id">
+                <input type="text" id="cat-descripcion" placeholder="Nombre de la categoría" required
+                    style="padding: 8px; width: 300px;">
+                <button type="submit"
+                    style="padding: 8px 12px; background: #28a745; color: white; border: none; border-radius: 3px; cursor: pointer; font-weight: bold;">Guardar
+                    Categoría</button>
+                <button type="button" id="btn-cancelar-cat"
+                    style="display: none; padding: 8px 12px; background: #6c757d; color: white; border: none; border-radius: 3px; cursor: pointer;">Cancelar</button>
+            </form>
+
+            <table border="1" style="width: 100%; border-collapse: collapse; text-align: left;">
+                <thead style="background-color: #f8f9fa;">
+                    <tr>
+                        <th style="padding: 8px;">ID</th>
+                        <th style="padding: 8px;">Descripción</th>
+                        <th style="padding: 8px;">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="tabla-categorias"></tbody>
+            </table>
+        </section>
+
+        <!--BREAD de articulos-->
+        <section style="background: white; padding: 20px; border-radius: 5px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+            <h3 id="titulo-form-art">Nuevo Artículo</h3>
+            <form id="form-articulo" style="margin-bottom: 15px; display: flex; gap: 10px; flex-wrap: wrap;">
+                <input type="hidden" id="art-id">
+                <input type="text" id="art-descripcion" placeholder="Descripción del artículo" required
+                    style="padding: 8px; flex: 1; min-width: 200px;">
+                <select id="art-select-cat" required style="padding: 8px; min-width: 180px;">
+                    <option value="">-- Seleccionar Categoría --</option>
+                </select>
+                <button type="submit"
+                    style="padding: 8px 12px; background: #28a745; color: white; border: none; border-radius: 3px; cursor: pointer; font-weight: bold;">Guardar
+                    Artículo</button>
+                <button type="button" id="btn-cancelar-art"
+                    style="display: none; padding: 8px 12px; background: #6c757d; color: white; border: none; border-radius: 3px; cursor: pointer;">Cancelar</button>
+            </form>
+
+            <table border="1" style="width: 100%; border-collapse: collapse; text-align: left;">
+                <thead style="background-color: #f8f9fa;">
+                    <tr>
+                        <th style="padding: 8px;">ID</th>
+                        <th style="padding: 8px;">Descripción</th>
+                        <th style="padding: 8px;">Categoría</th>
+                        <th style="padding: 8px;">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="tabla-articulos"></tbody>
+            </table>
+        </section>
+    </main>
+
+    <script type="module" src="../js/sesion.js"></script>
+    <script type="module" src="../js/tecnico.js"></script>
+</body>
+
+</html>

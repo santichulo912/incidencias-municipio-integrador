@@ -17,15 +17,15 @@ app.get('/api/health', (req, res) => {
 });
 
 const authRoutes = require('./routes/authRoutes');
-app.use('/api/auth', authRoutes);
+app.use('/api/v1/auth', authRoutes);
 
 const articuloRoutes = require('./routes/articuloRoutes');
-app.use('/api/articulos', articuloRoutes);
+app.use('/api/v1/articulos', articuloRoutes);
 
 const categoriaRoutes = require('./routes/categoriaRoutes');
-app.use('/api/categorias', categoriaRoutes);
+app.use('/api/v1/categorias', categoriaRoutes);
 
 const incidenciaRoutes = require('./routes/incidenciaRoutes');
-app.use('/api/incidencias', incidenciaRoutes);
+app.use('/api/v1/incidencias', incidenciaRoutes);
 
 module.exports = app;

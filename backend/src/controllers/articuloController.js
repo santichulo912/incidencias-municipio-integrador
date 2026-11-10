@@ -1,151 +1,200 @@
 const pool = require('../config/database');
 
-//BROWSE: Listar articulos
-async function listarArticulos(req, res) {
+//BROWSE: Listar todos los artículos
+const obtenerArticulos = async (req, res) => {
   try {
-    const query = `
-      SELECT 
-        a.id_articulo,
-        a.descripcion,
-        a.activo,
-        ar.id_area,
-        ar.descripcion AS area_descripcion,
-        c.id_categoria,
-        c.descripcion AS categoria_descripcion
-      FROM articulos a
-      LEFT JOIN areas ar ON a.id_area = ar.id_area
-      LEFT JOIN categorias c ON a.id_categoria = c.id_categoria
-      WHERE a.activo = 1
-      ORDER BY a.descripcion ASC;
-    `;
+    const queryText = `
+            SELECT 
+                a.id_articulo,
+                a.descripcion,
+                a.id_categoria,
+                a.id_area,
+                a.activo,
+                c.descripcion AS categoria_descripcion
+            FROM articulos a
+            LEFT JOIN categorias c ON a.id_categoria = c.id_categoria
+            ORDER BY a.id_articulo ASC;
+        `;
+    const result = await pool.query(queryText);
 
-    const result = await pool.query(query);
-
-    res.json({ ok: true, data: result.rows });
-  } catch (error) {
-    console.error('Error al listar artículos:', error);
-    res.status(500).json({ ok: false, message: 'Error al listar artículos' });
-  }
-}
-
-//READ: Obtener articulo por ID
-async function obtenerArticuloPorId(req, res) {
-  const { id } = req.params;
-  try {
-    const query = `
-      SELECT 
-        a.id_articulo,
-        a.descripcion,
-        a.activo,
-        a.id_area,
-        ar.descripcion AS area_descripcion,
-        a.id_categoria,
-        c.descripcion AS categoria_descripcion
-      FROM articulos a
-      LEFT JOIN areas ar ON a.id_area = ar.id_area
-      LEFT JOIN categorias c ON a.id_categoria = c.id_categoria
-      WHERE a.id_articulo = $1 AND a.activo = 1;
-    `;
-
-    const result = await pool.query(query, [id]);
-
-    if (result.rows.length === 0) {
-      return res.status(404).json({ ok: false, mensaje: 'Artículo no encontrado' });
-    }
-
-    res.json({ ok: true, data: result.rows[0] });
-  } catch (error) {
-    console.error('Error al obtener artículo:', error);
-    res.status(500).json({ ok: false, mensaje: 'Error al obtener el artículo' });
-  }
-}
-
-//EDIT: Modificar articulo
-async function actualizarArticulo(req, res) {
-  const { id } = req.params;
-  const { descripcion, id_area, id_categoria } = req.body;
-
-  try {
-    const query = `
-      UPDATE articulos 
-      SET descripcion = $1, id_area = $2, id_categoria = $3
-      WHERE id_articulo = $4 AND activo = 1
-      RETURNING *;
-    `;
-
-    const result = await pool.query(query, [descripcion, id_area, id_categoria, id]);
-
-    if (result.rows.length === 0) {
-      return res.status(404).json({ ok: false, mensaje: 'Artículo no encontrado para actualizar' });
-    }
-
-    res.json({
+    return res.status(200).json({
       ok: true,
-      mensaje: 'Artículo actualizado exitosamente',
+      data: result.rows
+    });
+  } catch (error) {
+    console.error("Error al obtener artículos:", error.message);
+    return res.status(500).json({
+      ok: false,
+      mensaje: "Error interno al recuperar artículos"
+    });
+  }
+};
+
+//READ: Obtener artículo por ID
+const obtenerArticuloPorId = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const queryText = `
+            SELECT 
+                a.id_articulo,
+                a.descripcion,
+                a.id_categoria,
+                a.id_area,
+                a.activo,
+                c.descripcion AS categoria_descripcion
+            FROM articulos a
+            LEFT JOIN categorias c ON a.id_categoria = c.id_categoria
+            WHERE a.id_articulo = $1;
+        `;
+    const result = await pool.query(queryText, [id]);
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({
+        ok: false,
+        mensaje: "Artículo no encontrado"
+      });
+    }
+
+    return res.status(200).json({
+      ok: true,
       data: result.rows[0]
     });
   } catch (error) {
-    console.error('Error al actualizar artículo:', error);
-    res.status(500).json({ ok: false, mensaje: 'Error al actualizar el artículo' });
+    console.error("Error al buscar el artículo:", error.message);
+    return res.status(500).json({
+      ok: false,
+      mensaje: "Error interno al recuperar el artículo"
+    });
   }
-}
+};
 
-//ADD: Crear nuevo articulo
-async function crearArticulo(req, res) {
-  const { descripcion, id_area, id_categoria } = req.body;
+//EDIT: Actualizar artículo
+const actualizarArticulo = async (req, res) => {
+  const { id } = req.params;
+  const { descripcion, id_categoria, id_area, activo } = req.body;
+
+  if (!descripcion || !id_categoria) {
+    return res.status(400).json({
+      ok: false,
+      mensaje: "La descripción y la categoría son requeridas"
+    });
+  }
 
   try {
-    const query = `
-      INSERT INTO articulos (descripcion, id_area, id_categoria, activo)
-      VALUES ($1, $2, $3, 1)
-      RETURNING *;
-    `;
+    const areaValor = id_area || 1;
+    const activoValor = activo !== undefined ? activo : 1;
 
-    const result = await pool.query(query, [descripcion, id_area, id_categoria]);
+    const queryText = `
+            UPDATE articulos 
+            SET descripcion = $1, id_categoria = $2, id_area = $3, activo = $4
+            WHERE id_articulo = $5
+            RETURNING *;
+        `;
+    const result = await pool.query(queryText, [descripcion, id_categoria, areaValor, activoValor, id]);
 
-    res.status(201).json({
+    if (result.rows.length === 0) {
+      return res.status(404).json({
+        ok: false,
+        mensaje: "El artículo a actualizar no existe"
+      });
+    }
+
+    return res.status(200).json({
       ok: true,
-      mensaje: 'Artículo creado exitosamente',
+      mensaje: "Artículo actualizado correctamente",
       data: result.rows[0]
     });
   } catch (error) {
-    console.error('Error al crear artículo:', error);
-    res.status(500).json({ ok: false, mensaje: 'Error al crear el artículo' });
+    console.error("Error al actualizar artículo:", error.message);
+    return res.status(500).json({
+      ok: false,
+      mensaje: "Error interno al modificar el artículo"
+    });
   }
-}
+};
 
-//DELETE: Soft Delete (marcar activo = 0)
-async function eliminarArticulo(req, res) {
+//ADD: Crear artículo
+const crearArticulo = async (req, res) => {
+  const { descripcion, id_categoria, id_area } = req.body;
+
+  if (!descripcion || !id_categoria) {
+    return res.status(400).json({
+      ok: false,
+      mensaje: "La descripción y la categoría son campos obligatorios"
+    });
+  }
+
+  try {
+    const areaValor = id_area || 1;
+
+    const queryText = `
+            INSERT INTO articulos (descripcion, id_categoria, id_area, activo) 
+            VALUES ($1, $2, $3, 1) 
+            RETURNING *;
+        `;
+    const result = await pool.query(queryText, [descripcion, id_categoria, areaValor]);
+
+    return res.status(201).json({
+      ok: true,
+      mensaje: "Artículo creado con éxito",
+      data: result.rows[0]
+    });
+  } catch (error) {
+    console.error("Error al crear artículo:", error.message);
+    return res.status(500).json({
+      ok: false,
+      mensaje: `Error al guardar el artículo: ${error.message}`
+    });
+  }
+};
+
+//DELETE: Eliminar artículo por ID
+const eliminarArticulo = async (req, res) => {
   const { id } = req.params;
 
   try {
-    const query = `
-      UPDATE articulos 
-      SET activo = 0 
-      WHERE id_articulo = $1 AND activo = 1
-      RETURNING *;
-    `;
-
-    const result = await pool.query(query, [id]);
+    const queryText = `
+            DELETE FROM articulos 
+            WHERE id_articulo = $1 
+            RETURNING *;
+        `;
+    const result = await pool.query(queryText, [id]);
 
     if (result.rows.length === 0) {
-      return res.status(404).json({ ok: false, mensaje: 'Artículo no encontrado' });
+      return res.status(404).json({
+        ok: false,
+        mensaje: "El artículo que intenta borrar no existe"
+      });
     }
 
-    res.json({
+    return res.status(200).json({
       ok: true,
-      mensaje: 'Artículo eliminado con éxito'
+      mensaje: "Artículo eliminado con éxito",
+      data: result.rows[0]
     });
   } catch (error) {
-    console.error('Error al eliminar artículo:', error);
-    res.status(500).json({ ok: false, mensaje: 'Error al eliminar el artículo' });
+    console.error("Error al eliminar artículo:", error.message);
+
+    // Control de restricción por fk(no puede eliminarse si tiene incidencias registradas)
+    if (error.code === '23503') {
+      return res.status(400).json({
+        ok: false,
+        mensaje: "No se puede eliminar el artículo porque tiene incidencias registradas en el sistema."
+      });
+    }
+
+    return res.status(500).json({
+      ok: false,
+      mensaje: "Error interno al eliminar el artículo"
+    });
   }
-}
+};
 
 module.exports = {
-  listarArticulos,
+  obtenerArticulos,
   obtenerArticuloPorId,
-  actualizarArticulo,
   crearArticulo,
-  eliminarArticulo,
+  actualizarArticulo,
+  eliminarArticulo
 };

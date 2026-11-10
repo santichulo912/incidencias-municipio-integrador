@@ -6,7 +6,7 @@ const validarJWT = (req, res, next) => {
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
     return res.status(401).json({
       ok: false,
-      mensaje: 'No hay token en la petición. Acceso denegado.'
+      mensaje: 'No cuenta con token. Acceso denegado.'
     });
   }
 

@@ -4,7 +4,7 @@ const pool = require('../config/database');
 //BROWSE:Listar categorías activas
 const obtenerCategorias = async (req, res) => {
     try {
-        const query = 'SELECT * FROM categorias WHERE activo = 1';
+        const query = 'SELECT * FROM categorias WHERE activo = 1 ORDER BY id_categoria ASC';
         const result = await pool.query(query);
 
         return res.status(200).json({
@@ -41,7 +41,7 @@ const obtenerCategoriasPorId = async (req, res) => {
     }
 };
 
-//EDIT:Modificar categoría 
+//EDIT:Editar categoría 
 const actualizarCategoria = async (req, res) => {
     try {
         const errores = validationResult(req);
@@ -66,7 +66,7 @@ const actualizarCategoria = async (req, res) => {
     }
 };
 
-//ADD:Crear nueva categoría
+//ADD:Crear categoría
 const crearCategoria = async (req, res) => {
     try {
         const errores = validationResult(req);
@@ -84,15 +84,15 @@ const crearCategoria = async (req, res) => {
             data: result.rows[0]
         });
     } catch (error) {
-        console.error('Error al crear la categoria:', error);
+        console.error('Error al crear categoria:', error);
         return res.status(500).json({
             ok: false,
-            mensaje: 'Error interno del servidor al crear la categoria.'
+            mensaje: 'Error interno del servidor al crear categoria.'
         });
     }
 };
 
-//DELETE: Soft Delete (marcar activo = 0)
+//DELETE:Soft Delete
 const eliminarCategoria = async (req, res) => {
     try {
         const { id } = req.params;
@@ -106,7 +106,7 @@ const eliminarCategoria = async (req, res) => {
 
         return res.status(200).json({ ok: true, mensaje: 'Categoría eliminada con éxito.' });
     } catch (error) {
-        console.error('Error al eliminar la categoría:', error);
+        console.error('Error al eliminar categoría:', error);
         return res.status(500).json({ ok: false, mensaje: 'Error interno del servidor.' });
     }
 };

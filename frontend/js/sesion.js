@@ -2,7 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
     //Si el token no existe, lo devolvemos al login
     const token = localStorage.getItem('token');
     if (!token) {
-        window.location.href = 'index.html';
+        window.location.href = 'login.html';
         return;
     }
 
@@ -21,13 +21,13 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Cierre de sesión para todos los usuarios
+    //Cerrar sesión
     const btnLogout = document.getElementById('btn-logout');
     if (btnLogout) {
         btnLogout.addEventListener('click', () => {
             localStorage.removeItem('token');
             localStorage.removeItem('usuario');
-            window.location.href = 'index.html';
+            window.location.href = 'login.html';
         });
     }
 });

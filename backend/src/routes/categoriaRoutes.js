@@ -15,8 +15,7 @@ const {
     eliminarCategoria
 } = require('../controllers/categoriaController');
 
-//Permisos de las funciones:
-
+//Permisos
 //BROWSE y READ
 router.get('/', [validarJWT, permitirRoles(1, 2, 3)], obtenerCategorias);
 router.get('/:id', [validarJWT, permitirRoles(1, 2, 3)], obtenerCategoriasPorId);

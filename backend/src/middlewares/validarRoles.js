@@ -1,4 +1,4 @@
-// Permite pasar un arreglo con los IDs de roles permitidos
+//Pasa arreglo con los IDs de roles permitidos
 const permitirRoles = (...rolesPermitidos) => {
     return (req, res, next) => {
         if (!req.usuario) {

@@ -6,7 +6,7 @@ const PORT = process.env.PORT || 3000;
 
 async function iniciar() {
   try {
-    // Probar la conexión con una consulta nativa simple
+    // Probamos conexión con una consulta simple
     await pool.query('SELECT 1');
     console.log('Conexión a la base de datos establecida correctamente.');
 
