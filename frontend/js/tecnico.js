@@ -201,6 +201,13 @@ async function cargarIncidenciasTecnico() {
             const tr = document.createElement('tr');
             const idEstado = Number(inc.id_estado);
 
+            let nombreEstado = inc.estado_descripcion || inc.id_estado;
+            if (idEstado === 3 || String(nombreEstado).toLowerCase().includes('resuel')) {
+                nombreEstado = 'Resuelta';
+            } else if (idEstado === 4 || String(nombreEstado).toLowerCase().includes('cancel')) {
+                nombreEstado = 'Cancelada';
+            }
+
             let botonesHTML = '';
             if (idEstado === 1) {
                 // Pendiente -> Iniciar Incidencia (Pasa a En Proceso)
@@ -224,7 +231,7 @@ async function cargarIncidenciasTecnico() {
                 <td style="padding: 10px; border-bottom: 1px solid #ddd;">${inc.articulo_descripcion || 'N/A'}</td>
                 <td style="padding: 10px; border-bottom: 1px solid #ddd;">${inc.descripcion_pedido}</td>
                 <td style="padding: 10px; border-bottom: 1px solid #ddd;">${inc.creado ? inc.creado.substring(0, 10) : '-'}</td>
-                <td style="padding: 10px; border-bottom: 1px solid #ddd;"><strong>${inc.estado_descripcion || inc.id_estado}</strong></td>
+                <td style="padding: 10px; border-bottom: 1px solid #ddd;"><strong>${nombreEstado}</strong></td>
                 <td style="padding: 10px; border-bottom: 1px solid #ddd;">${botonesHTML}</td>
             `;
             tbodyInc.appendChild(tr);
