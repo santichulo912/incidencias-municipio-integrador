@@ -381,11 +381,26 @@ async function cargarCatalogoArticulos() {
             tbody.replaceChildren();
             result.data.forEach(art => {
                 const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td style="padding: 10px; border-bottom: 1px solid #ddd;">#${art.id_articulo}</td>
-                    <td style="padding: 10px; border-bottom: 1px solid #ddd;">${art.descripcion}</td>
-                    <td style="padding: 10px; border-bottom: 1px solid #ddd;">${art.categoria_descripcion || 'General'}</td>
-                `;
+
+                const tdId = document.createElement('td');
+                tdId.style.padding = '10px';
+                tdId.style.borderBottom = '1px solid #ddd';
+                tdId.textContent = `#${art.id_articulo}`;
+
+                const tdDesc = document.createElement('td');
+                tdDesc.style.padding = '10px';
+                tdDesc.style.borderBottom = '1px solid #ddd';
+                tdDesc.textContent = art.descripcion;
+
+                const tdCat = document.createElement('td');
+                tdCat.style.padding = '10px';
+                tdCat.style.borderBottom = '1px solid #ddd';
+                tdCat.textContent = art.categoria_descripcion || 'General';
+
+                tr.appendChild(tdId);
+                tr.appendChild(tdDesc);
+                tr.appendChild(tdCat);
+
                 tbody.appendChild(tr);
             });
         }

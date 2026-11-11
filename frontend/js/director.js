@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         return;
     }
 
-    // Logout
+    //Logout
     const btnLogout = document.getElementById('btn-logout');
     if (btnLogout) {
         btnLogout.addEventListener('click', () => {
@@ -88,11 +88,31 @@ async function cargarReportes() {
             tbodyCat.replaceChildren();
             const categorias = result.data.por_categoria || [];
             if (categorias.length === 0) {
-                tbodyCat.innerHTML = `<tr><td colspan="2" style="padding: 8px; text-align: center;">Sin registros</td></tr>`;
+                const tr = document.createElement('tr');
+                const td = document.createElement('td');
+                td.colSpan = 2;
+                td.style.padding = '8px';
+                td.style.textAlign = 'center';
+                td.textContent = 'Sin registros';
+                tr.appendChild(td);
+                tbodyCat.appendChild(tr);
             } else {
                 categorias.forEach(c => {
                     const tr = document.createElement('tr');
-                    tr.innerHTML = `<td style="padding: 8px; border-bottom: 1px solid #ddd;">${c.categoria}</td><td style="padding: 8px; font-weight: bold; border-bottom: 1px solid #ddd;">${c.total}</td>`;
+
+                    const tdCat = document.createElement('td');
+                    tdCat.style.padding = '8px';
+                    tdCat.style.borderBottom = '1px solid #ddd';
+                    tdCat.textContent = c.categoria;
+
+                    const tdTotal = document.createElement('td');
+                    tdTotal.style.padding = '8px';
+                    tdTotal.style.fontWeight = 'bold';
+                    tdTotal.style.borderBottom = '1px solid #ddd';
+                    tdTotal.textContent = c.total;
+
+                    tr.appendChild(tdCat);
+                    tr.appendChild(tdTotal);
                     tbodyCat.appendChild(tr);
                 });
             }
@@ -102,11 +122,31 @@ async function cargarReportes() {
             tbodyFec.replaceChildren();
             const fechas = result.data.por_fecha || [];
             if (fechas.length === 0) {
-                tbodyFec.innerHTML = `<tr><td colspan="2" style="padding: 8px; text-align: center;">Sin registros en los últimos 7 días</td></tr>`;
+                const tr = document.createElement('tr');
+                const td = document.createElement('td');
+                td.colSpan = 2;
+                td.style.padding = '8px';
+                td.style.textAlign = 'center';
+                td.textContent = 'Sin registros';
+                tr.appendChild(td);
+                tbodyFec.appendChild(tr);
             } else {
                 fechas.forEach(f => {
                     const tr = document.createElement('tr');
-                    tr.innerHTML = `<td style="padding: 8px; border-bottom: 1px solid #ddd;">${f.fecha}</td><td style="padding: 8px; font-weight: bold; border-bottom: 1px solid #ddd;">${f.cantidad}</td>`;
+
+                    const tdFecha = document.createElement('td');
+                    tdFecha.style.padding = '8px';
+                    tdFecha.style.borderBottom = '1px solid #ddd';
+                    tdFecha.textContent = f.fecha;
+
+                    const tdCant = document.createElement('td');
+                    tdCant.style.padding = '8px';
+                    tdCant.style.fontWeight = 'bold';
+                    tdCant.style.borderBottom = '1px solid #ddd';
+                    tdCant.textContent = f.cantidad;
+
+                    tr.appendChild(tdFecha);
+                    tr.appendChild(tdCant);
                     tbodyFec.appendChild(tr);
                 });
             }
@@ -129,7 +169,14 @@ async function cargarIncidenciasDirector() {
         tbody.replaceChildren();
 
         if (result.data.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="8" style="padding: 10px; text-align: center;">No hay incidencias registradas</td></tr>`;
+            const tr = document.createElement('tr');
+            const td = document.createElement('td');
+            td.colSpan = 8;
+            td.style.padding = '10px';
+            td.style.textAlign = 'center';
+            td.textContent = 'No hay incidencias registradas';
+            tr.appendChild(td);
+            tbody.appendChild(tr);
             return;
         }
 
@@ -140,44 +187,118 @@ async function cargarIncidenciasDirector() {
             const esFinalizada = (idEstado === 3 || idEstado === 4); // Resuelta o Cancelada
             const esPendiente = (idEstado === 1); // Pendiente
 
-            let colAsignarHTML = '';
+            //Columna ID
+            const tdId = document.createElement('td');
+            tdId.style.padding = '10px';
+            tdId.style.borderBottom = '1px solid #ddd';
+            tdId.textContent = `#${inc.id_incidencia}`;
+
+            //Columna solicitado por
+            const tdEmpleado = document.createElement('td');
+            tdEmpleado.style.padding = '10px';
+            tdEmpleado.style.borderBottom = '1px solid #ddd';
+            tdEmpleado.textContent = inc.nombre_empleado || 'N/A';
+
+            //Columna articulo
+            const tdArt = document.createElement('td');
+            tdArt.style.padding = '10px';
+            tdArt.style.borderBottom = '1px solid #ddd';
+            tdArt.textContent = inc.articulo_descripcion || 'N/A';
+
+            //Columna descripción
+            const tdDesc = document.createElement('td');
+            tdDesc.style.padding = '10px';
+            tdDesc.style.borderBottom = '1px solid #ddd';
+            tdDesc.textContent = inc.descripcion_pedido;
+
+            //Columna fecha
+            const tdFecha = document.createElement('td');
+            tdFecha.style.padding = '10px';
+            tdFecha.style.borderBottom = '1px solid #ddd';
+            tdFecha.textContent = inc.creado ? inc.creado.substring(0, 10) : '-';
+
+            //Columna estado
+            const tdEstado = document.createElement('td');
+            tdEstado.style.padding = '10px';
+            tdEstado.style.borderBottom = '1px solid #ddd';
+            const strongEstado = document.createElement('strong');
+
+            let textoEstado = inc.estado_descripcion || inc.id_estado;
+            if (idEstado === 3 || String(textoEstado).toLowerCase().includes('resuel')) {
+                textoEstado = 'Resuelta';
+            } else if (idEstado === 4 || String(textoEstado).toLowerCase().includes('cancel')) {
+                textoEstado = 'Cancelada';
+            }
+            strongEstado.textContent = textoEstado;
+            tdEstado.appendChild(strongEstado);
+
+            //Columna asignar tecnico
+            const tdAsignar = document.createElement('td');
+            tdAsignar.style.padding = '10px';
+            tdAsignar.style.borderBottom = '1px solid #ddd';
+
             if (esFinalizada) {
-                colAsignarHTML = `<span style="color: #6c757d; font-style: italic;">${inc.nombre_tecnico || 'Sin Asignar'}</span>`;
+                const spanTec = document.createElement('span');
+                spanTec.style.color = '#6c757d';
+                spanTec.style.fontStyle = 'italic';
+                spanTec.textContent = inc.nombre_tecnico || 'Sin Asignar';
+                tdAsignar.appendChild(spanTec);
             } else {
-                let optionsTecnicos = `<option value="">-- Seleccionar --</option>`;
+                const select = document.createElement('select');
+                select.className = 'select-tecnico-auto';
+                select.setAttribute('data-id', inc.id_incidencia);
+                select.style.cssText = 'padding: 5px; border-radius: 4px; border: 1px solid #ccc; width: 100%;';
+
+                const optDefault = document.createElement('option');
+                optDefault.value = '';
+                optDefault.textContent = '-- Seleccionar --';
+                select.appendChild(optDefault);
+
                 listaTecnicosGlobal.forEach(tec => {
-                    const selected = (inc.asignado_a === tec.id_usuario) ? 'selected' : '';
-                    optionsTecnicos += `<option value="${tec.id_usuario}" ${selected}>${tec.nombres || tec.nombre} ${tec.apellidos || tec.apellido || ''}</option>`;
+                    const option = document.createElement('option');
+                    option.value = tec.id_usuario;
+                    option.textContent = `${tec.nombres || tec.nombre} ${tec.apellidos || tec.apellido || ''}`.trim();
+                    if (inc.asignado_a === tec.id_usuario) option.selected = true;
+                    select.appendChild(option);
                 });
-                colAsignarHTML = `
-                    <select class="select-tecnico-auto" data-id="${inc.id_incidencia}" style="padding: 5px; border-radius: 4px; border: 1px solid #ccc; width: 100%;">
-                        ${optionsTecnicos}
-                    </select>
-                `;
+
+                tdAsignar.appendChild(select);
             }
 
-            // Columna Acciones (Solo muestra Cancelar en estado Pendiente)
-            let colAccionesHTML = '';
+            //Columna acciones
+            const tdAcciones = document.createElement('td');
+            tdAcciones.style.padding = '10px';
+            tdAcciones.style.borderBottom = '1px solid #ddd';
+
             if (esPendiente) {
-                colAccionesHTML = `
-                    <button class="btn-cancelar-dir" data-id="${inc.id_incidencia}" style="background: #dc3545; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-weight: bold;">Cancelar</button>
-                `;
+                const btnCancel = document.createElement('button');
+                btnCancel.className = 'btn-cancelar-dir';
+                btnCancel.setAttribute('data-id', inc.id_incidencia);
+                btnCancel.textContent = 'Cancelar';
+                btnCancel.style.cssText = 'background: #dc3545; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-weight: bold;';
+                tdAcciones.appendChild(btnCancel);
             } else if (esFinalizada) {
-                colAccionesHTML = `<span style="color: #6c757d; font-size: 13px;">Finalizada</span>`;
+                const spanAcc = document.createElement('span');
+                spanAcc.style.color = '#6c757d';
+                spanAcc.style.fontSize = '13px';
+                spanAcc.textContent = 'Finalizada';
+                tdAcciones.appendChild(spanAcc);
             } else {
-                colAccionesHTML = `<span style="color: #17a2b8; font-size: 13px;">En Proceso</span>`;
+                const spanAcc = document.createElement('span');
+                spanAcc.style.color = '#17a2b8';
+                spanAcc.style.fontSize = '13px';
+                spanAcc.textContent = 'En Proceso';
+                tdAcciones.appendChild(spanAcc);
             }
 
-            tr.innerHTML = `
-                <td style="padding: 10px; border-bottom: 1px solid #ddd;">#${inc.id_incidencia}</td>
-                <td style="padding: 10px; border-bottom: 1px solid #ddd;">${inc.nombre_empleado || 'N/A'}</td>
-                <td style="padding: 10px; border-bottom: 1px solid #ddd;">${inc.articulo_descripcion || 'N/A'}</td>
-                <td style="padding: 10px; border-bottom: 1px solid #ddd;">${inc.descripcion_pedido}</td>
-                <td style="padding: 10px; border-bottom: 1px solid #ddd;">${inc.creado ? inc.creado.substring(0, 10) : '-'}</td>
-                <td style="padding: 10px; border-bottom: 1px solid #ddd;"><strong>${inc.estado_descripcion || inc.id_estado}</strong></td>
-                <td style="padding: 10px; border-bottom: 1px solid #ddd;">${colAsignarHTML}</td>
-                <td style="padding: 10px; border-bottom: 1px solid #ddd;">${colAccionesHTML}</td>
-            `;
+            tr.appendChild(tdId);
+            tr.appendChild(tdEmpleado);
+            tr.appendChild(tdArt);
+            tr.appendChild(tdDesc);
+            tr.appendChild(tdFecha);
+            tr.appendChild(tdEstado);
+            tr.appendChild(tdAsignar);
+            tr.appendChild(tdAcciones);
 
             tbody.appendChild(tr);
         });
@@ -193,7 +314,7 @@ async function cargarIncidenciasDirector() {
             });
         });
 
-        //Botón de cancelar incidencias
+        //Botón de cancelar incidencia
         document.querySelectorAll('.btn-cancelar-dir').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 const idIncidencia = e.target.getAttribute('data-id');

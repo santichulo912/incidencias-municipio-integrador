@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', async () => {
-    //Verificar Token y Sesión
+    // Verificar Token y Sesión
     const token = localStorage.getItem('token');
     const usuarioRaw = localStorage.getItem('usuario');
 
@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const usuario = JSON.parse(usuarioRaw);
 
-    //Configurar Logout
+    // Configurar Logout
     const btnLogout = document.getElementById('btn-logout');
     if (btnLogout) {
         btnLogout.addEventListener('click', () => {
@@ -19,23 +19,23 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
-    //Mostrar nombre del tecnico
+    // Mostrar nombre del técnico
     const elNombre = document.getElementById('nombre-usuario');
     if (elNombre) {
         const nombreCompleto = `${usuario.nombres || usuario.nombre || ''} ${usuario.apellidos || usuario.apellido || ''}`.trim();
         elNombre.textContent = nombreCompleto || usuario.usuario || 'Técnico';
     }
 
-    //Configurar formularios
+    // Configurar formularios
     configurarFormularios();
 
-    //Cargar Datos Iniciales
+    // Cargar Datos Iniciales
     try { await cargarCategorias(); } catch (e) { console.error('Error al cargar categorías:', e); }
     try { await cargarArticulos(); } catch (e) { console.error('Error al cargar artículos:', e); }
     try { await cargarIncidenciasTecnico(); } catch (e) { console.error('Error al cargar incidencias:', e); }
 });
 
-//Cargar categorias
+// Cargar categorías
 async function cargarCategorias() {
     const token = localStorage.getItem('token');
     const tbodyCat = document.getElementById('tabla-categorias');
@@ -56,18 +56,52 @@ async function cargarCategorias() {
             tbodyCat.replaceChildren();
 
             if (listaCategorias.length === 0) {
-                tbodyCat.innerHTML = `<tr><td colspan="3" style="padding: 8px; text-align: center;">No hay categorías registradas</td></tr>`;
+                const tr = document.createElement('tr');
+                const td = document.createElement('td');
+                td.colSpan = 3;
+                td.style.padding = '8px';
+                td.style.textAlign = 'center';
+                td.textContent = 'No hay categorías registradas';
+                tr.appendChild(td);
+                tbodyCat.appendChild(tr);
             } else {
                 listaCategorias.forEach(cat => {
                     const tr = document.createElement('tr');
-                    tr.innerHTML = `
-                        <td style="padding: 8px; border-bottom: 1px solid #ddd;">${cat.id_categoria}</td>
-                        <td style="padding: 8px; border-bottom: 1px solid #ddd;">${cat.descripcion}</td>
-                        <td style="padding: 8px; border-bottom: 1px solid #ddd;">
-                            <button class="btn-editar-cat" data-id="${cat.id_categoria}" data-desc="${cat.descripcion}" style="background: #ffc107; border: none; padding: 4px 8px; border-radius: 3px; cursor: pointer; font-weight: bold; margin-right: 4px;">Editar</button>
-                            <button class="btn-eliminar-cat" data-id="${cat.id_categoria}" style="background: #dc3545; color: white; border: none; padding: 4px 8px; border-radius: 3px; cursor: pointer; font-weight: bold;">Eliminar</button>
-                        </td>
-                    `;
+
+                    const tdId = document.createElement('td');
+                    tdId.style.padding = '8px';
+                    tdId.style.borderBottom = '1px solid #ddd';
+                    tdId.textContent = cat.id_categoria;
+
+                    const tdDesc = document.createElement('td');
+                    tdDesc.style.padding = '8px';
+                    tdDesc.style.borderBottom = '1px solid #ddd';
+                    tdDesc.textContent = cat.descripcion;
+
+                    const tdAcciones = document.createElement('td');
+                    tdAcciones.style.padding = '8px';
+                    tdAcciones.style.borderBottom = '1px solid #ddd';
+
+                    const btnEdit = document.createElement('button');
+                    btnEdit.className = 'btn-editar-cat';
+                    btnEdit.setAttribute('data-id', cat.id_categoria);
+                    btnEdit.setAttribute('data-desc', cat.descripcion);
+                    btnEdit.textContent = 'Editar';
+                    btnEdit.style.cssText = 'background: #ffc107; border: none; padding: 4px 8px; border-radius: 3px; cursor: pointer; font-weight: bold; margin-right: 4px;';
+
+                    const btnDel = document.createElement('button');
+                    btnDel.className = 'btn-eliminar-cat';
+                    btnDel.setAttribute('data-id', cat.id_categoria);
+                    btnDel.textContent = 'Eliminar';
+                    btnDel.style.cssText = 'background: #dc3545; color: white; border: none; padding: 4px 8px; border-radius: 3px; cursor: pointer; font-weight: bold;';
+
+                    tdAcciones.appendChild(btnEdit);
+                    tdAcciones.appendChild(btnDel);
+
+                    tr.appendChild(tdId);
+                    tr.appendChild(tdDesc);
+                    tr.appendChild(tdAcciones);
+
                     tbodyCat.appendChild(tr);
                 });
 
@@ -95,7 +129,7 @@ async function cargarCategorias() {
             }
         }
 
-        //Llena Select del formulario de articulos
+        // Llena Select del formulario de artículos
         if (selectCat) {
             const valorActual = selectCat.value;
             selectCat.replaceChildren();
@@ -115,7 +149,7 @@ async function cargarCategorias() {
     }
 }
 
-//Carga articulos en la tabla del tecnico
+// Carga artículos en la tabla del técnico
 async function cargarArticulos() {
     const token = localStorage.getItem('token');
     const tbodyArt = document.getElementById('tabla-articulos');
@@ -130,25 +164,67 @@ async function cargarArticulos() {
         tbodyArt.replaceChildren();
 
         if (result.data.length === 0) {
-            tbodyArt.innerHTML = `<tr><td colspan="4" style="padding: 8px; text-align: center;">No hay artículos en el catálogo</td></tr>`;
+            const tr = document.createElement('tr');
+            const td = document.createElement('td');
+            td.colSpan = 4;
+            td.style.padding = '8px';
+            td.style.textAlign = 'center';
+            td.textContent = 'No hay artículos en el catálogo';
+            tr.appendChild(td);
+            tbodyArt.appendChild(tr);
             return;
         }
 
         result.data.forEach(art => {
             const tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td style="padding: 8px; border-bottom: 1px solid #ddd;">${art.id_articulo}</td>
-                <td style="padding: 8px; border-bottom: 1px solid #ddd;">${art.descripcion}</td>
-                <td style="padding: 8px; border-bottom: 1px solid #ddd;">${art.categoria_descripcion || 'Sin categoría'}</td>
-                <td style="padding: 8px; border-bottom: 1px solid #ddd;">
-                    <button class="btn-editar-art" data-id="${art.id_articulo}" data-desc="${art.descripcion}" data-cat="${art.id_categoria}" style="background: #ffc107; border: none; padding: 4px 8px; border-radius: 3px; cursor: pointer; font-weight: bold; margin-right: 4px;">Editar</button>
-                    <button class="btn-eliminar-art" data-id="${art.id_articulo}" style="background: #dc3545; color: white; border: none; padding: 4px 8px; border-radius: 3px; cursor: pointer; font-weight: bold;">Eliminar</button>
-                </td>
-            `;
+
+            const tdId = document.createElement('td');
+            tdId.style.padding = '8px';
+            tdId.style.borderBottom = '1px solid #ddd';
+            tdId.textContent = art.id_articulo;
+
+            const tdDesc = document.createElement('td');
+            tdDesc.style.padding = '8px';
+            tdDesc.style.borderBottom = '1px solid #ddd';
+            tdDesc.textContent = art.descripcion;
+
+            const tdCat = document.createElement('td');
+            tdCat.style.padding = '8px';
+            tdCat.style.borderBottom = '1px solid #ddd';
+            tdCat.textContent = art.categoria_descripcion || 'Sin categoría';
+
+            const tdAcciones = document.createElement('td');
+            tdAcciones.style.padding = '8px';
+            tdAcciones.style.borderBottom = '1px solid #ddd';
+
+            const btnEdit = document.createElement('button');
+            btnEdit.className = 'btn-editar-art';
+            btnEdit.setAttribute('data-id', art.id_articulo);
+            btnEdit.setAttribute('data-desc', art.descripcion);
+            btnEdit.setAttribute('data-cat', art.id_categoria);
+            btnEdit.textContent = 'Editar';
+            btnEdit.style.cssText = 'background: #ffc107; border: none; padding: 4px 8px; border-radius: 3px; cursor: pointer; font-weight: bold; margin-right: 4px;';
+
+            const btnDel = document.createElement('button');
+            btnDel.className = 'btn-eliminar-art';
+            btnDel.setAttribute('data-id', art.id_articulo);
+            btnDel.textContent = 'Eliminar';
+            btnDel.style.cssText = 'background: #dc3545; color: white; border: none; padding: 4px 8px; border-radius: 3px; cursor: pointer; font-weight: bold;';
+
+            tdAcciones.appendChild(btnEdit);
+            tdAcciones.appendChild(btnDel);
+
+            tr.appendChild(tdId);
+            tr.appendChild(tdDesc);
+            tr.appendChild(tdCat);
+            tr.appendChild(tdAcciones);
+
             tbodyArt.appendChild(tr);
         });
 
-        //Editamos articulo
+        // Editamos artículo
+        // Dentro de cargarArticulos() en tecnico.js
+
         document.querySelectorAll('.btn-editar-art').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 const id = e.target.getAttribute('data-id');
@@ -157,8 +233,9 @@ async function cargarArticulos() {
 
                 document.getElementById('art-id').value = id;
                 document.getElementById('art-descripcion').value = desc;
+
                 const selectCat = document.getElementById('art-select-cat');
-                if (selectCat) selectCat.value = catId;
+                if (selectCat) selectCat.value = catId; // Preselecciona la categoría actual
 
                 document.getElementById('titulo-form-art').textContent = 'Editar Artículo';
                 const btnCancel = document.getElementById('btn-cancelar-art');
@@ -166,7 +243,7 @@ async function cargarArticulos() {
             });
         });
 
-        //Eliminamos articulo
+        // Eliminamos artículo
         document.querySelectorAll('.btn-eliminar-art').forEach(btn => {
             btn.addEventListener('click', async (e) => {
                 const id = e.target.getAttribute('data-id');
@@ -178,7 +255,7 @@ async function cargarArticulos() {
     }
 }
 
-//Carga incidencias asignadas
+// Carga incidencias asignadas
 async function cargarIncidenciasTecnico() {
     const token = localStorage.getItem('token');
     const tbodyInc = document.getElementById('tabla-tecnico-incidencias');
@@ -193,7 +270,14 @@ async function cargarIncidenciasTecnico() {
         tbodyInc.replaceChildren();
 
         if (result.data.length === 0) {
-            tbodyInc.innerHTML = `<tr><td colspan="7" style="padding: 10px; text-align: center;">No tenés incidencias asignadas a tu cargo</td></tr>`;
+            const tr = document.createElement('tr');
+            const td = document.createElement('td');
+            td.colSpan = 7;
+            td.style.padding = '10px';
+            td.style.textAlign = 'center';
+            td.textContent = 'No tenés incidencias asignadas a tu cargo';
+            tr.appendChild(td);
+            tbodyInc.appendChild(tr);
             return;
         }
 
@@ -208,32 +292,80 @@ async function cargarIncidenciasTecnico() {
                 nombreEstado = 'Cancelada';
             }
 
-            let botonesHTML = '';
+            const tdId = document.createElement('td');
+            tdId.style.padding = '10px';
+            tdId.style.borderBottom = '1px solid #ddd';
+            tdId.textContent = `#${inc.id_incidencia}`;
+
+            const tdEmp = document.createElement('td');
+            tdEmp.style.padding = '10px';
+            tdEmp.style.borderBottom = '1px solid #ddd';
+            tdEmp.textContent = inc.nombre_empleado || 'N/A';
+
+            const tdArt = document.createElement('td');
+            tdArt.style.padding = '10px';
+            tdArt.style.borderBottom = '1px solid #ddd';
+            tdArt.textContent = inc.articulo_descripcion || 'N/A';
+
+            const tdDesc = document.createElement('td');
+            tdDesc.style.padding = '10px';
+            tdDesc.style.borderBottom = '1px solid #ddd';
+            tdDesc.textContent = inc.descripcion_pedido;
+
+            const tdFecha = document.createElement('td');
+            tdFecha.style.padding = '10px';
+            tdFecha.style.borderBottom = '1px solid #ddd';
+            tdFecha.textContent = inc.creado ? inc.creado.substring(0, 10) : '-';
+
+            const tdEstado = document.createElement('td');
+            tdEstado.style.padding = '10px';
+            tdEstado.style.borderBottom = '1px solid #ddd';
+            const strongEstado = document.createElement('strong');
+            strongEstado.textContent = nombreEstado;
+            tdEstado.appendChild(strongEstado);
+
+            const tdAcciones = document.createElement('td');
+            tdAcciones.style.padding = '10px';
+            tdAcciones.style.borderBottom = '1px solid #ddd';
+
             if (idEstado === 1) {
-                // Pendiente -> Iniciar Incidencia (Pasa a En Proceso)
-                botonesHTML = `
-                    <button class="btn-estado" data-id="${inc.id_incidencia}" data-estado="2" style="background: #17a2b8; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: bold;">Iniciar Incidencia</button>
-                `;
+                const btnState = document.createElement('button');
+                btnState.className = 'btn-estado';
+                btnState.setAttribute('data-id', inc.id_incidencia);
+                btnState.setAttribute('data-estado', '2');
+                btnState.textContent = 'Iniciar Incidencia';
+                btnState.style.cssText = 'background: #17a2b8; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: bold;';
+                tdAcciones.appendChild(btnState);
             } else if (idEstado === 2) {
-                // En Proceso -> Finalizar Incidencia (Pasa a Resuelta)
-                botonesHTML = `
-                    <button class="btn-estado" data-id="${inc.id_incidencia}" data-estado="3" style="background: #28a745; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: bold;">Finalizar / Resolver</button>
-                `;
+                const btnState = document.createElement('button');
+                btnState.className = 'btn-estado';
+                btnState.setAttribute('data-id', inc.id_incidencia);
+                btnState.setAttribute('data-estado', '3');
+                btnState.textContent = 'Finalizar / Resolver';
+                btnState.style.cssText = 'background: #28a745; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: bold;';
+                tdAcciones.appendChild(btnState);
             } else if (idEstado === 3) {
-                botonesHTML = `<span style="color: #28a745; font-weight: bold;">Resuelta</span>`;
+                const spanRes = document.createElement('span');
+                spanRes.style.color = '#28a745';
+                spanRes.style.fontWeight = 'bold';
+                spanRes.textContent = 'Resuelta';
+                tdAcciones.appendChild(spanRes);
             } else if (idEstado === 4) {
-                botonesHTML = `<span style="color: #dc3545; font-weight: bold;">Cancelada</span>`;
+                const spanCanc = document.createElement('span');
+                spanCanc.style.color = '#dc3545';
+                spanCanc.style.fontWeight = 'bold';
+                spanCanc.textContent = 'Cancelada';
+                tdAcciones.appendChild(spanCanc);
             }
 
-            tr.innerHTML = `
-                <td style="padding: 10px; border-bottom: 1px solid #ddd;">#${inc.id_incidencia}</td>
-                <td style="padding: 10px; border-bottom: 1px solid #ddd;">${inc.nombre_empleado || 'N/A'}</td>
-                <td style="padding: 10px; border-bottom: 1px solid #ddd;">${inc.articulo_descripcion || 'N/A'}</td>
-                <td style="padding: 10px; border-bottom: 1px solid #ddd;">${inc.descripcion_pedido}</td>
-                <td style="padding: 10px; border-bottom: 1px solid #ddd;">${inc.creado ? inc.creado.substring(0, 10) : '-'}</td>
-                <td style="padding: 10px; border-bottom: 1px solid #ddd;"><strong>${nombreEstado}</strong></td>
-                <td style="padding: 10px; border-bottom: 1px solid #ddd;">${botonesHTML}</td>
-            `;
+            tr.appendChild(tdId);
+            tr.appendChild(tdEmp);
+            tr.appendChild(tdArt);
+            tr.appendChild(tdDesc);
+            tr.appendChild(tdFecha);
+            tr.appendChild(tdEstado);
+            tr.appendChild(tdAcciones);
+
             tbodyInc.appendChild(tr);
         });
 
@@ -247,9 +379,9 @@ async function cargarIncidenciasTecnico() {
     }
 }
 
-//Formularios
+// Formularios
 function configurarFormularios() {
-    //Formulario de categorias
+    // Formulario de categorías
     const formCat = document.getElementById('form-categoria');
     const btnCancelCat = document.getElementById('btn-cancelar-cat');
 
@@ -294,7 +426,7 @@ function configurarFormularios() {
         });
     }
 
-    //Formulario de articulos
+    // Formulario de artículos
     const formArt = document.getElementById('form-articulo');
     const btnCancelArt = document.getElementById('btn-cancelar-art');
 

@@ -71,46 +71,27 @@ const obtenerArticuloPorId = async (req, res) => {
 
 //EDIT: Actualizar artículo
 const actualizarArticulo = async (req, res) => {
-  const { id } = req.params;
-  const { descripcion, id_categoria, id_area, activo } = req.body;
-
-  if (!descripcion || !id_categoria) {
-    return res.status(400).json({
-      ok: false,
-      mensaje: "La descripción y la categoría son requeridas"
-    });
-  }
-
   try {
-    const areaValor = id_area || 1;
-    const activoValor = activo !== undefined ? activo : 1;
-
-    const queryText = `
-            UPDATE articulos 
-            SET descripcion = $1, id_categoria = $2, id_area = $3, activo = $4
-            WHERE id_articulo = $5
-            RETURNING *;
-        `;
-    const result = await pool.query(queryText, [descripcion, id_categoria, areaValor, activoValor, id]);
-
-    if (result.rows.length === 0) {
-      return res.status(404).json({
-        ok: false,
-        mensaje: "El artículo a actualizar no existe"
-      });
+    const errores = validationResult(req);
+    if (!errores.isEmpty()) {
+      return res.status(400).json({ ok: false, errores: errores.array() });
     }
 
-    return res.status(200).json({
-      ok: true,
-      mensaje: "Artículo actualizado correctamente",
-      data: result.rows[0]
-    });
+    const { id } = req.params;
+    const { descripcion, id_categoria } = req.body;
+
+    // UPDATE para modificar descripcion y categoria
+    const query = 'UPDATE articulos SET descripcion = $1, id_categoria = $2 WHERE id_articulo = $3 AND activo = 1 RETURNING *';
+    const result = await pool.query(query, [descripcion, id_categoria, id]);
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ ok: false, mensaje: 'Artículo no encontrado.' });
+    }
+
+    return res.status(200).json({ ok: true, mensaje: 'Artículo actualizado con éxito.', data: result.rows[0] });
   } catch (error) {
-    console.error("Error al actualizar artículo:", error.message);
-    return res.status(500).json({
-      ok: false,
-      mensaje: "Error interno al modificar el artículo"
-    });
+    console.error('Error al actualizar el artículo:', error);
+    return res.status(500).json({ ok: false, mensaje: 'Error interno del servidor.' });
   }
 };
 
